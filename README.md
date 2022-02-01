@@ -6,4 +6,6 @@ The first process requires the .bnd file and .grd file that one can generate fro
 In this process the real world coordinates are extracted from these files and exported as a .csv file
 
 The second process requires the mdf file, the waterlevel netcdf file from easygsh and the csv file created from process one.
-This part generates the .bct file in the same name as the mdf file. 
+This part generates the .bct file in the same name as the mdf file. As an overview this process uses the xarray module to select and extract the water level data , where the locations are specified by the process one csv file. The data is then stored in lists with the boundary name as keys, which is then looped with the header information and written in the required .bct format. 
+
+Please run just the main.py file for results.
