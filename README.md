@@ -1,7 +1,21 @@
 # bct_file_generator_for_EasyGSH
-The aim is to extract timeseries water level 2D information for any designed boundaries within the EasyGSH website (under the synoptic simulation, UnTRIM22, 1000m grid section.)
-As of now it is a two part process
+The aim is to extract timeseries water level 2D information for any designed boundaries within the EasyGSH model domain  (data found under the synoptic simulation, UnTRIM22, 1000m grid section.)
 
+Packages used in this project
+
+csv
+numpy
+OS
+pandas
+processing.core.Processing
+processing
+sys
+qgis.core
+utm
+time
+
+
+As of now it is a two part process
 The first process requires the .bnd file and .grd file that one can generate from the Delft3D GUI
 In this process the real world coordinates are extracted from these files and exported as a .csv file
 
