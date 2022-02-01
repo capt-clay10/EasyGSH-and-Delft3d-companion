@@ -18,9 +18,17 @@ def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step
     import pandas as pd
     import numpy as np
     import os
-    import utm
     import csv
     import time
+    
+    try:
+        import utm
+    except ModuleNotFoundError as err:
+        # Error handling
+        print(
+            str(err) + (' Module utm doesnt exist please install it in your environment,',
+                        'conda code: conda install - c conda-forge utm',
+                        'pip code: pip install utm'))
 
     try:
         import xarray as xr
