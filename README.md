@@ -3,16 +3,17 @@ The aim is to extract timeseries water level 2D information for any designed bou
 
 Packages used in this project
 
-csv
-numpy
-OS
-pandas
-processing.core.Processing
-processing
-sys
-qgis.core
-utm
-time
+csv 
+numpy 
+OS 
+pandas 
+processing.core.Processing 
+processing 
+sys 
+qgis.core 
+time 
+utm 
+xarray 
 
 
 As of now it is a two part process
