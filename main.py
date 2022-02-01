@@ -50,7 +50,7 @@ step = float(step_req)  # 2.0000000e+001  # 20 minute step # max resolution for 
 
 # %% output file
 
-bct_name = mdf_file  # take the name from the mdf file
+bct_name = mdf_file  # take the name from the mdf file # Arne: How about this and the following 2 lines in one line?
 name_with_dot = bct_name.partition('.')
 name_until_dot = name_with_dot[0]
 bct_file = '{}.bct'.format(name_until_dot)
