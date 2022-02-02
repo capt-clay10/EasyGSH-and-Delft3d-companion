@@ -1,4 +1,4 @@
-"""Read DELFT3D grd and bnd file to extract coordinates for boundary start / end points ."""
+""" Combine modules to extract coordinates of boundaries and then extract water level information for the same."""
 # Notes to self:
 # Usually (?) N corresponds to +/-x, M corresponds to +/-y
 # ETA = n. There are 2*N ETA records in total:
@@ -75,7 +75,8 @@ if __name__ == '__main__':
     bct = bct_generator.bct_file_generator(
         boundaries, nc_file, mdf_file, start_time, end_time, step, bct_file)
 
-    # %% end the time lapse
+    # %% end the time counter
+    
     print('The process of extracting water level has now completed in : ')
     elapsed = time.time() - t
     print(str(elapsed) + " sec")
