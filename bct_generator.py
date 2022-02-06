@@ -12,7 +12,7 @@ The output file (.bct) will have the same name as the mdf file
 # %% Over head function
 
 
-def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step, bct_file):
+def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step, bct_file_name):
 
     # %% Import packages
     import pandas as pd
@@ -170,7 +170,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step
     # %% write the bct file
 
     try:
-        os.remove(bct_file)
+        os.remove(bct_file_name)
     except FileNotFoundError:
         pass
 
@@ -188,7 +188,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step
                         "parameter            'water elevation (z)  end B'               unit '[m]'",
                         "records-in-table     {}".format(record_in_table)]
 
-        with open(bct_file, 'a', newline='') as f:
+        with open(bct_file_name, 'a', newline='') as f:
             for one_line in header_lines:
                 f.write(one_line)
                 f.write('\r\n')
