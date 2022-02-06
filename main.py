@@ -8,7 +8,6 @@ and wave data : significant height, direction , peak period, directional spread"
 # 1st set of N ETA records contains M x coordinates, 2nd contains M y coordinates
 # just trying pycharm
 
-
 import output_methods
 import extract_from_d3d_files
 import os
@@ -27,10 +26,9 @@ if __name__ == '__main__':
     req = input("For both files(1), for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
     choice = float(req)
 
-    print("Please read carefully the input criteria, ",
-          " some are for the wave grid while some for flow")
-
     if choice == 1:
+        print("Please read carefully the input criteria, ",
+              " some are for the wave grid while some for flow")
 
         grid_req = input('Enter name of the Flow grid file : ')
         grid_input = grid_req
@@ -255,10 +253,10 @@ if __name__ == '__main__':
 
         # %% Create the csv file for wave boundaries
         bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
-            path_bnd=bnd_wave_input)
+            path_bnd=bnd_input)
 
         coord_from_d3d_wave_grd_output = extract_from_d3d_files.extract_coord_from_d3d_grd(
-            path_grd=grid_wave_input,
+            path_grd=grid_input,
             request_list=bnd_wave_grd_indices_output)
 
         output_methods.write_bnd_coord_ascii(
