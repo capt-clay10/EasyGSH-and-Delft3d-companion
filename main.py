@@ -20,7 +20,8 @@ if __name__ == '__main__':
     path = path_req  # 'F:/test'
     os.chdir(path)
 
-    print("Please read carefully the input criteria , some are for the wave grid while some for flow")
+    print("Please read carefully the input criteria, ",
+          " some are for the wave grid while some for flow")
 
     grid_req = input('Enter name of the Flow grid file : ')
     grid_input = grid_req
@@ -60,7 +61,9 @@ if __name__ == '__main__':
 
     step_wave_req = input(
         'Enter time step to extract WAVE data (max resolution is 20mins, should be multiples of 20) format 20 : ')
-    step_wave = float(step_wave_req)  # 2.0000000e+001  # 20 minute step # max resolution for gsh data
+
+    # 2.0000000e+001  # 20 minute step # max resolution for gsh data
+    step_wave = float(step_wave_req)
 
     # %% output files
     name_with_dot = mdf_file.partition('.')  # Use mdf file to extract bct file and output file
@@ -84,7 +87,8 @@ if __name__ == '__main__':
         bnd_data_list=coord_from_d3d_grd_output, out_path=path_out_file)
 
     # %% Create the csv file for wave boundaries
-    bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(path_bnd=bnd_wave_input)
+    bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
+        path_bnd=bnd_wave_input)
 
     coord_from_d3d_wave_grd_output = extract_from_d3d_files.extract_coord_from_d3d_grd(
         path_grd=grid_wave_input,

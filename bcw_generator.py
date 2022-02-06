@@ -4,13 +4,13 @@ The function to extract wave data from the netcdf file and create a bcw file
 """
 
 
-def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_time, step_wave, bcw_file_name):
+def bcw_file_generator(
+        boundaries_wave, nc_file_wave, mdw_file, start_time, end_time, step_wave, bcw_file_name):
     # %% Import packages
     import pandas as pd
     import numpy as np
     import os
     import csv
-    import time
     import math
 
     try:
@@ -18,9 +18,9 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
     except ModuleNotFoundError as err:
         # Error handling
         print(
-            str(err) + (' Module utm doesnt exist please install it in your environment,',
-                        'conda code: conda install - c conda-forge utm',
-                        'pip code: pip install utm'))
+            str(err) + ' Module utm doesnt exist please install it in your environment,',
+            'conda code: conda install - c conda-forge utm',
+            'pip code: pip install utm')
 
     try:
         import xarray as xr
@@ -30,7 +30,6 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
             str(err_4) +
             ' This package also requires extra dependencies like netCDF4, h5netcdf and possibly scipy')
 
-    t = time.time()
     # %% Set path
 
     # path_req = input('Enter the input/output path here (w/o quotation marks) : ')
@@ -45,8 +44,6 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
         if s == 'nan':
             s = "%.*e" % (prec, 0)  # TODO: is it a good idea to replace nan with 0?
         mantissa, exp = s.split('e')
-        # print(f'mantissa: {mantissa}')
-        # print(f'exp: {exp}')
         # add 1 to digits as 1 is taken by sign +/-
         return "%se%+0*d" % (mantissa, exp_digits + 1, int(exp))
 
@@ -61,7 +58,6 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
     def add_blank_pos_val(input_str, length_integral):
         """Add leading blank for positive value. Add leading blanks for numbers with less digits
         in integral than specified."""
-        # TODO: Remove all print statements
         length_integral_wo_sign = len(input_str.split('.')[0])
         # print(f'Initial length: {length_integral_wo_sign}')
 
@@ -76,9 +72,7 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
 
         while length_integral_wo_sign < length_integral:
             output_str = f' {output_str}'
-            # print(f'String after addition of blank for low number: {output_str}')
             length_integral_wo_sign = len(output_str.split('.')[0])
-            # print(f'Length after addition of blank for low number: {length_integral_wo_sign}')
 
         return output_str
 
@@ -98,6 +92,8 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
                     string_val = val[1].strip()
                     break
                     file1.close()  # close file
+                else:
+                    print('{} is not in the file'.format(string_name))
         return string_val
 
     def convert_float_fstr(float_list, decimal_digits):
@@ -114,7 +110,8 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
 
     # %% Extract information from mdw file
 
-    ref_date_unedited = value_from_txt_file(mdw_file, 'ReferenceDate')  # from mdw file
+    ref_date_unedited = start_time  # because reference time is not reference date
+    ref_date_unedited = start_time.split(' ')[0]
     ref_date = ref_date_unedited.replace('-', '')
 
     # %% Generate the time steps for bcw
@@ -141,7 +138,8 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
     easting = bnd_loc['easting']
     northing = bnd_loc['northing']
     bnd = bnd_loc['boundary']
-    easting = easting.to_numpy(dtype='float64')  # converting to a numpy array to suit the module 'UTM'
+    # converting to a numpy array to suit the module 'UTM'
+    easting = easting.to_numpy(dtype='float64')
     northing = northing.to_numpy(dtype='float64')
     bnd_loc_geo = utm.to_latlon(easting, northing, 32, 'N')  # convert to utm
     bnd_loc_geo = pd.DataFrame(bnd_loc_geo)  # convert tuple to dataframe
@@ -156,8 +154,10 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
         extracted_x_y_dict[row['boundaries']] = []  # Create keys for the dict
 
     # Extract data and store in the preallocated dict
-    extract_data_for_loc(dataset=wave_dir_x, dataframe_loc=bnd_loc_geo, output_dict=extracted_x_y_dict)
-    extract_data_for_loc(dataset=wave_dir_y, dataframe_loc=bnd_loc_geo, output_dict=extracted_x_y_dict)
+    extract_data_for_loc(dataset=wave_dir_x, dataframe_loc=bnd_loc_geo,
+                         output_dict=extracted_x_y_dict)
+    extract_data_for_loc(dataset=wave_dir_y, dataframe_loc=bnd_loc_geo,
+                         output_dict=extracted_x_y_dict)
 
     # Vectorise single value functions so they can handle arrays.
     tan_inverse = np.vectorize(math.atan2)
@@ -212,12 +212,16 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
         peak_period = extracted_dataset_dict[key][1]
         dir_spread = extracted_dataset_dict[key][2]
         # convert to swan format string
-        converted_dataset_dict[key].append(convert_float_fstr(float_list=float_range, decimal_digits=2))
-        converted_dataset_dict[key].append(convert_float_fstr(float_list=sig_height, decimal_digits=4))
-        converted_dataset_dict[key].append(convert_float_fstr(float_list=peak_period, decimal_digits=4))
+        converted_dataset_dict[key].append(convert_float_fstr(
+            float_list=float_range, decimal_digits=2))
+        converted_dataset_dict[key].append(
+            convert_float_fstr(float_list=sig_height, decimal_digits=4))
+        converted_dataset_dict[key].append(convert_float_fstr(
+            float_list=peak_period, decimal_digits=4))
         converted_dataset_dict[key].append(convert_float_fstr(
             float_list=direction_dict[key], decimal_digits=4))
-        converted_dataset_dict[key].append(convert_float_fstr(float_list=dir_spread, decimal_digits=4))
+        converted_dataset_dict[key].append(
+            convert_float_fstr(float_list=dir_spread, decimal_digits=4))
 
     # %% write the bcw file
 
@@ -274,5 +278,3 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
                 csv_writer.writerow([row_str])
 
                 count += 1
-
-
