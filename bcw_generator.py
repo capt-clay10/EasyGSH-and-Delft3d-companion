@@ -37,18 +37,6 @@ def bcw_file_generator(boundaries_wave, nc_file_wave, mdw_file, start_time, end_
     path = 'F:/test'
     os.chdir(path)
 
-    # %% output file for bcw
-
-    if coupled_or_not == 'True':
-        # mdf_file_req = input('Enter the mdf file name : ')
-        name_with_dot = mdf_file.partition('.')
-        name_until_dot = name_with_dot[0]
-        bcw_file = '{}.bcw'.format(name_until_dot)
-    elif coupled_or_not == 'False':
-        name_with_dot = mdw_file.partition('.')
-        name_until_dot = name_with_dot[0]
-        bcw_file = '{}.bcw'.format(name_until_dot)
-
     # %% Create functions
 
     def convert_flt_to_sci_not(fltt, prec, exp_digits):
