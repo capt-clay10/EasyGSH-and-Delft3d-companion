@@ -1,10 +1,13 @@
-""" Combine modules to extract coordinates of boundaries and then extract water level information for the same.
+""" Combine modules to extract coordinates of boundaries and then extract water level information
+for the same.
 and wave data : significant height, direction , peak period, directional spread"""
+
 # Notes to self:
 # Usually (?) N corresponds to +/-x, M corresponds to +/-y
 # ETA = n. There are 2*N ETA records in total:
 # 1st set of N ETA records contains M x coordinates, 2nd contains M y coordinates
 # just trying pycharm
+
 import output_methods
 import extract_from_d3d_files
 import os
@@ -47,11 +50,11 @@ if __name__ == '__main__':
     mdw_file_req = input('Enter the mdf file name : ')
     mdw_file = mdw_file_req  # 'test.mdw'
 
-    start_time_req = input('Enter the start time in the format YYYY-mm-dd HH:MM:SS : ')
+    start_time_req = input('Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
     start_time = start_time_req  # '2015-02-01 00:00:00'
     # TODO: automate extraction # this is used to slice the nc_file
 
-    end_time_req = input('Enter the end time in the format YYYY-mm-dd HH:MM:SS : ')
+    end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
     end_time = end_time_req  # '2015-02-14 00:00:00'
     # TODO: automate extraction # this is used to slice the nc_file
 
