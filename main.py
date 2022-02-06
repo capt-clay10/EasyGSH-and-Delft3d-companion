@@ -24,7 +24,7 @@ if __name__ == '__main__':
     path = path_req  # 'F:/test'
     os.chdir(path)
 
-    req = input("For both files(1), for bct(2) and for bcw(3) : ")
+    req = input("For both files(1), for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
     choice = float(req)
 
     print("Please read carefully the input criteria, ",
@@ -240,3 +240,26 @@ if __name__ == '__main__':
         print('The process of extracting wave boundary conditions has now completed in : ')
         elapsed = time.time() - t
         print(str(elapsed) + " sec")
+
+    elif choice == 4:
+        grid_req = input('Enter name of the grid file : ')
+        grid_input = grid_req
+
+        bnd_req = input('Enter name of the bnd file : ')
+        bnd_input = bnd_req
+
+        # Use grid file to extract bct file and output file
+        wave_name_with_dot = grid_input.partition('.')
+        wave_name_until_dot = wave_name_with_dot[0]
+        wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
+
+        # %% Create the csv file for wave boundaries
+        bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
+            path_bnd=bnd_wave_input)
+
+        coord_from_d3d_wave_grd_output = extract_from_d3d_files.extract_coord_from_d3d_grd(
+            path_grd=grid_wave_input,
+            request_list=bnd_wave_grd_indices_output)
+
+        output_methods.write_bnd_coord_ascii(
+            bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
