@@ -22,6 +22,8 @@ if __name__ == '__main__':
     path_req = input('Enter the input/output path here (w/o quotation marks) : ')
     path = path_req  # 'F:/test'
     os.chdir(path)
+    print("Please read carefully the input criteria, ",
+          " and choose which file you would like")
 
     req = input("For both files(1), for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
     choice = float(req)
