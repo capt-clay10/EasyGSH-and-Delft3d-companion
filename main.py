@@ -1,4 +1,5 @@
-""" Combine modules to extract coordinates of boundaries and then extract water level information for the same."""
+""" Combine modules to extract coordinates of boundaries and then extract water level information for the same.
+and wave data : significant height, direction , peak period, directional spread"""
 # Notes to self:
 # Usually (?) N corresponds to +/-x, M corresponds to +/-y
 # ETA = n. There are 2*N ETA records in total:
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
     wave_name_with_dot = mdw_file.partition('.')  # Use mdf file to extract bct file and output file
     wave_name_until_dot = wave_name_with_dot[0]
-    bcw_file = '{}.bct'.format(wave_name_until_dot)
+    bcw_file = '{}.bcw'.format(wave_name_until_dot)
     wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
 
     # %% Create the csv file for flow boundaries
