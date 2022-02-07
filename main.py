@@ -66,11 +66,11 @@ if __name__ == '__main__':
         # TODO: automate extraction # this is used to slice the nc_file
 
         step_req = input(
-            'Enter time step to extract data (max resolution is 20mins) format 20 : ')
+            'Enter time step to extract data (max resolution is 20 mins) format 20 : ')
         step = float(step_req)  # 2.0000000e+001  # 20 minute step # max resolution for gsh data
 
         step_wave_req = input(
-            'Enter time step to extract WAVE data (max resolution is 20mins, should be multiples of 20) format 20 : ')
+            'Enter time step to extract WAVE data (max resolution is 20 mins, should be multiples of 20) format 20 : ')
 
         # 2.0000000e+001  # 20 minute step # max resolution for gsh data
         step_wave = float(step_wave_req)
