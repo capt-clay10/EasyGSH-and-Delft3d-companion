@@ -121,8 +121,8 @@ def bcw_file_generator(
 
     # %% Configuring time step to adhere to the coupling interval
     if one_time_step_bcw <= 20:
-        time_step_data = int(20.0)
-    else:
+        time_step_data = int(1)
+    elif one_time_step_bcw > 20:
         time_step_data = int(one_time_step_bcw / min_data_time_step)
 
     dataset = data.sel(nMesh2_data_time=slice(start_time, end_time, time_step_data))

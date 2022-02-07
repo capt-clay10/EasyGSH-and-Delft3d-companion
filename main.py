@@ -53,7 +53,7 @@ if __name__ == '__main__':
         nc_file_wave_req = input('Enter the NetCDF file name : ')
         nc_file_wave = nc_file_wave_req  # '2015_1000m_wave_2D.nc'
 
-        mdw_file_req = input('Enter the mdf file name : ')
+        mdw_file_req = input('Enter the mdw file name : ')
         mdw_file = mdw_file_req  # 'test.mdw'
 
         start_time_req = input(
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-02-14 00:00:00'
+        end_time = end_time_req  # '2015-02-28 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         step_req = input(
@@ -97,6 +97,9 @@ if __name__ == '__main__':
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_grd_output, out_path=path_out_file)
 
+        print('The process of creating',
+              ' the boundary location csv file for flow is completed')
+
         # %% Create the csv file for wave boundaries
         bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
             path_bnd=bnd_wave_input)
@@ -107,6 +110,9 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
+
+        print('The process of creating',
+              ' the boundary location csv file for Wave is completed')
 
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
@@ -172,6 +178,9 @@ if __name__ == '__main__':
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_grd_output, out_path=path_out_file)
 
+        print('The process of creating',
+              ' the boundary location csv file for flow is completed')
+
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
         bct = bct_generator.bct_file_generator(
@@ -194,7 +203,7 @@ if __name__ == '__main__':
         nc_file_wave_req = input('Enter the NetCDF file name : ')
         nc_file_wave = nc_file_wave_req  # '2015_1000m_wave_2D.nc'
 
-        mdw_file_req = input('Enter the mdf file name : ')
+        mdw_file_req = input('Enter the mdw file name : ')
         mdw_file = mdw_file_req  # 'test.mdw'
 
         start_time_req = input(
@@ -203,7 +212,7 @@ if __name__ == '__main__':
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-02-14 00:00:00'
+        end_time = end_time_req  # '2015-02-28 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         step_wave_req = input(
@@ -229,6 +238,9 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
+
+        print('The process of creating',
+              ' the boundary location csv file for wave is completed')
 
         # %% Create the bcw file
         boundaries_wave = wave_path_out_file
@@ -263,5 +275,8 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
+
+        print('The process of creating',
+              ' the boundary location csv file is completed')
     else:
         print("You probably din't insert the number right, Please run again! ")
