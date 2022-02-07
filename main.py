@@ -263,3 +263,5 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
+    else:
+        print("You probably din't insert the number right, Please run again! ")
