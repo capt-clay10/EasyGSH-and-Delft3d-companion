@@ -58,11 +58,11 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-02-01 00:00:00'
+        start_time = start_time_req  # '2015-03-01 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-02-28 00:00:00'
+        end_time = end_time_req  # '2015-03-14 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         step_req = input(
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-02-01 00:00:00'
+        start_time = start_time_req  # '2015-03-14 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
@@ -208,11 +208,11 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-02-01 00:00:00'
+        start_time = start_time_req  # '2015-03-01 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-02-28 00:00:00'
+        end_time = end_time_req  # '2015-03-14 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         step_wave_req = input(

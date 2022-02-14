@@ -169,7 +169,7 @@ def bcw_file_generator(
         x = extracted_x_y_dict[key][0]
         y = extracted_x_y_dict[key][1]
         # use negative y and x to get nautical directions (clockwise)
-        direction_with_neg = (rad_to_deg(tan_inverse(-y, -x)))
+        direction_with_neg = (rad_to_deg(tan_inverse(-y, -x))) + 180
         direction_dict[key] = direction_with_neg
 
     # %% create the time list for the swan file
