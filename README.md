@@ -6,17 +6,14 @@ This code creates files for the Delft3D module
 
 ### Packages used in this project
 
-csv 
-numpy 
-OS 
-pandas 
-processing.core.Processing 
-processing 
-sys 
-qgis.core 
-time 
-utm 
-xarray 
+* csv 
+* numpy 
+* OS 
+* pandas 
+* sys 
+* time 
+* utm 
+* xarray 
 
 
 ## As of now it is a three part process [ Please run just the main.py file for results.]
@@ -36,6 +33,7 @@ The third process requires mdw file, the wave netcdf file from easygsh and the w
 ### Information about the BCW file
 
 **The direction is between 0-360 , in the nautical convention and the angle is from y to x as opposed to x to y (see wikipedia fig 1 : https://en.wikipedia.org/wiki/Atan2)**
+**The directional spread is in degrees**
 
 #### The creator of this script recommends the following steps to create and use the bcw file:
 
@@ -46,6 +44,7 @@ The third process requires mdw file, the wave netcdf file from easygsh and the w
 5) Once completed, open the mdw file and add the key word as in the manual with the appropriate format (TSeriesFile= wave.bcw)      
 6) In the mdw file , in the section Boundaries, look for and delete the lines with Wave Height, Peak period, Direction and Directional spread.          
 
-***NOTE: The creators will at some point automate steps 2 ,3 and 6***
+* NOTE: The creators will at some point automate steps 2 ,3 and 6 
+    * Also calculation of the frequency bins and directinal bins might be added
 
 
