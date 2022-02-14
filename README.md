@@ -35,7 +35,7 @@ The third process requires mdw file, the wave netcdf file from easygsh and the w
 
 ### Information about the BCW file
 
-**The direction is between -180 to 180 , in the nautical convention and the angle is from y to x as opposed to x to y (see wikipedia fig 1 : https://en.wikipedia.org/wiki/Atan2)**
+**The direction is between 0-360 , in the nautical convention and the angle is from y to x as opposed to x to y (see wikipedia fig 1 : https://en.wikipedia.org/wiki/Atan2)**
 
 #### The creator of this script recommends the following steps to create and use the bcw file:
 
