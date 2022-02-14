@@ -248,7 +248,7 @@ def bcw_file_generator(
             "parameter            'WaveHeight'                               unit '[m]'",
             "parameter            'Period'                                   unit '[s]'",
             "parameter            'Direction'                                unit '[N^o]'",
-            "parameter            'DirSpreading'                             unit '[-]'"]
+            "parameter            'DirSpreading'                             unit '[deg]'"]
         # TODO: Check if DirSpreading is actually cosine or directional standard deviation
 
         with open(bcw_file_name, 'a', newline='') as f:
