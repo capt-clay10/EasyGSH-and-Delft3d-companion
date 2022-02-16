@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-03-01 00:00:00'
+        start_time = start_time_req  # '2015-02-01 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
         bct = bct_generator.bct_file_generator(
-            boundaries=boundaries, nc_file=nc_file, mdf_file=mdf_file, start_time=start_time, end_time=end_time, step=step,
+            boundaries=boundaries, nc_file=nc_file, mdf_file=mdf_file, step=step,
             bct_file_name=bct_file_name)
 
         # %% end the time counter
@@ -149,15 +149,6 @@ if __name__ == '__main__':
         mdf_file_req = input('Enter the mdf file name : ')
         mdf_file = mdf_file_req  # 'test.mdf'
 
-        start_time_req = input(
-            'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-03-14 00:00:00'
-        # TODO: automate extraction # this is used to slice the nc_file
-
-        end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-02-14 00:00:00'
-        # TODO: automate extraction # this is used to slice the nc_file
-
         step_req = input(
             'Enter time step to extract data (max resolution is 20mins) format 20 : ')
         step = float(step_req)  # 20 minute step # max resolution for gsh data
@@ -184,7 +175,7 @@ if __name__ == '__main__':
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
         bct = bct_generator.bct_file_generator(
-            boundaries=boundaries, nc_file=nc_file, mdf_file=mdf_file, start_time=start_time, end_time=end_time, step=step,
+            boundaries=boundaries, nc_file=nc_file, mdf_file=mdf_file, step=step,
             bct_file_name=bct_file_name)
 
         # %% end the time counter
@@ -208,7 +199,7 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-03-01 00:00:00'
+        start_time = start_time_req  # '2015-02-01 00:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
@@ -222,7 +213,7 @@ if __name__ == '__main__':
         step_wave = float(step_wave_req)
 
         # %% bcw output file
-        # Use mdf file to extract bct file and output file
+        # Use mdw file to extract bcw file and output file
         wave_name_with_dot = mdw_file.partition('.')
         wave_name_until_dot = wave_name_with_dot[0]
         bcw_file = '{}.bcw'.format(wave_name_until_dot)

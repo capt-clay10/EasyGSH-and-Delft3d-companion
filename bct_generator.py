@@ -12,7 +12,7 @@ The output file (.bct) will have the same name as the mdf file
 # %% Over head function
 
 
-def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step, bct_file_name):
+def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     # %% Import packages
     import pandas as pd
@@ -20,7 +20,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step
     import os
     import csv
     import time
-    
+
     try:
         import utm
     except ModuleNotFoundError as err:
@@ -108,6 +108,26 @@ def bct_file_generator(boundaries, nc_file, mdf_file, start_time, end_time, step
     reference_time = ref_time.replace('-', '')  # remove the hyphen for the bct file format
     # step = 2.0000000e+001  # 20 minute step # adding here for understanding
 
+    # %% extract start time and end time from mdf
+    from datetime import datetime
+    from datetime import timedelta
+
+    time_start = ref_time+" 00:00:00"  # Assuming it always starts at 00
+    date_format_str = "%Y-%m-%d %H:%M:%S"
+
+    # Calculate number of hours between ref time and sim time
+    start_time_steps = int(start/60)  # to convert minutes to hours
+    end_time_steps = int(stop/60)
+
+    # create datetime object from timestamp string
+    extracted_time = datetime.strptime(time_start, date_format_str)
+
+    start_time = extracted_time + timedelta(hours=start_time_steps)
+    # Convert datetime object to string in specific format
+    start_time = start_time .strftime("%Y-%m-%d %H:%M:%S")
+
+    end_time = extracted_time + timedelta(hours=end_time_steps)
+    end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
     # %% Open input files
 
     bnd_loc = pd.read_csv(boundaries, names=['boundary', 'easting', 'northing'], )
