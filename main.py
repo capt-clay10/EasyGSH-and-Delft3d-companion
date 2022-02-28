@@ -44,13 +44,13 @@ if __name__ == '__main__':
         bnd_wave_req = input('Enter name of the Wave bnd file : ')
         bnd_wave_input = bnd_wave_req
 
-        nc_file_req = input('Enter the NetCDF file name : ')
+        nc_file_req = input('Enter the Water level NetCDF file name : ')
         nc_file = nc_file_req  # '2015_1000m_waterlevel_2D.nc'
 
         mdf_file_req = input('Enter the mdf file name : ')
         mdf_file = mdf_file_req  # 'test.mdf'
 
-        nc_file_wave_req = input('Enter the NetCDF file name : ')
+        nc_file_wave_req = input('Enter the Wave NetCDF file name : ')
         nc_file_wave = nc_file_wave_req  # '2015_1000m_wave_2D.nc'
 
         mdw_file_req = input('Enter the mdw file name : ')
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
         start_time_req = input(
             'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-02-01 00:00:00'
+        start_time = start_time_req  # '2015-02-01 12:00:00'
         # TODO: automate extraction # this is used to slice the nc_file
 
         end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')

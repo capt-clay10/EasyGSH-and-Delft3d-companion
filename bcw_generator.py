@@ -33,8 +33,8 @@ def bcw_file_generator(
     # %% Set path
 
     # path_req = input('Enter the input/output path here (w/o quotation marks) : ')
-    path = 'F:/test'
-    os.chdir(path)
+    # path = 'F:/test'
+    # os.chdir(path)
 
     # %% Create functions
 
@@ -125,7 +125,33 @@ def bcw_file_generator(
     elif one_time_step_bcw > 20:
         time_step_data = int(one_time_step_bcw / min_data_time_step)
 
-    dataset = data.sel(nMesh2_data_time=slice(start_time, end_time, time_step_data))
+    # %% correcting for 12 hour time difference in gsh
+    from datetime import timedelta
+    from datetime import datetime
+
+    time_start = start_time
+    time_end = end_time
+    date_format_str = "%Y-%m-%d %H:%M:%S"
+
+    # create datetime object from timestamp string
+    extracted_time = datetime.strptime(time_start, date_format_str)
+    n = -12  # Set the observed time to be one hour back
+
+    start_time_lag = extracted_time + timedelta(hours=n)
+
+    # Convert datetime object to string in specific format
+    start_time_lag = start_time_lag.strftime("%Y-%m-%d %H:%M:%S")
+
+    ##
+    # create datetime object from timestamp string
+    extracted_time = datetime.strptime(time_end, date_format_str)
+
+    end_time_lag = extracted_time + timedelta(hours=n)
+
+    # Convert datetime object to string in specific format
+    end_time_lag = end_time_lag.strftime("%Y-%m-%d %H:%M:%S")
+
+    dataset = data.sel(nMesh2_data_time=slice(start_time_lag, end_time_lag, time_step_data))
 
     sig_height = dataset['Mesh2_face_signifikante_Wellenhoehe_2d']
     peak_period = dataset['Mesh2_face_Peak_Wellenperiode_2d']

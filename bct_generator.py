@@ -128,6 +128,30 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     end_time = extracted_time + timedelta(hours=end_time_steps)
     end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
+
+    # %% correcting for 12 hour time difference in gsh
+
+    time_start = start_time
+    time_end = end_time
+    date_format_str = "%Y-%m-%d %H:%M:%S"
+
+    # create datetime object from timestamp string
+    extracted_time = datetime.strptime(time_start, date_format_str)
+    n = -12
+
+    start_time = extracted_time + timedelta(hours=n)
+
+    # Convert datetime object to string in specific format
+    start_time = start_time .strftime("%Y-%m-%d %H:%M:%S")
+
+    ##
+    # create datetime object from timestamp string
+    extracted_time = datetime.strptime(time_end, date_format_str)
+
+    end_time = extracted_time + timedelta(hours=n)
+
+    # Convert datetime object to string in specific format
+    end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
     # %% Open input files
 
     bnd_loc = pd.read_csv(boundaries, names=['boundary', 'easting', 'northing'], )
