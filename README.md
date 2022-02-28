@@ -16,6 +16,9 @@ This code creates files for the Delft3D module
 * utm 
 * xarray 
 
+# UPDATES
+
+* No need to add start time and end time to generate bct file, it extracts it now directly from the .mdf file. (For .bcw still needs manual input)
 
 ## As of now it is a three part process [ Please run just the main.py file for results.]
 
