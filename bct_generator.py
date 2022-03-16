@@ -40,6 +40,20 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     # %% Create functions
 
+    def value_from_txt_file(file, string_name):
+        file1 = open(file, "r")
+        for line in file1:
+            # checking string is present in line or not
+            if '=' in line:
+                if string_name in line:
+                    val = line.split('=')
+                    string_val = val[1].strip()
+                    break
+                    file1.close()  # close file
+                else:
+                    print('{} is not in the file'.format(string_name))
+        return string_val
+
     def convert_flt_to_sci_not(fltt, prec, exp_digits):
         s = "%.*e" % (prec, fltt)
         # print(f's: {s}')
@@ -67,7 +81,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
         else:
             output_str = input_str
         return output_str
-
+    print(".")
     # %% Extract information from mdf file
 
     string1 = 'Tstart'
@@ -107,6 +121,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
     ref_time = ref_time_unedited[1:11]
     reference_time = ref_time.replace('-', '')  # remove the hyphen for the bct file format
     # step = 2.0000000e+001  # 20 minute step # adding here for understanding
+    print(".")
 
     # %% extract start time and end time from mdf
     from datetime import datetime
@@ -128,7 +143,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     end_time = extracted_time + timedelta(hours=end_time_steps)
     end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
-
+    print(".")
     # %% correcting for 12 hour time difference in gsh
 
     time_start = start_time
@@ -152,6 +167,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     # Convert datetime object to string in specific format
     end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
+    print("Time lag for flow bct corrected")
     # %% Open input files
 
     bnd_loc = pd.read_csv(boundaries, names=['boundary', 'easting', 'northing'], )
@@ -160,7 +176,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     dataset = data.sel(nMesh2_data_time=slice(start_time, end_time))
     wl = dataset['Mesh2_face_Wasserstand_2d']
-
+    print(".")
     # %% Convert to geographic coordinates
 
     easting = bnd_loc['easting']
@@ -174,6 +190,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
     bnd_loc_geo = bnd_loc_geo.T  # transpose the dataframe
     bnd_loc_geo.columns = ['lat', 'lon']
     bnd_loc_geo['boundaries'] = bnd  # adding the boundary names
+    print(".")
 
     # %%  Converting time to scientific notations and check for records in table
 
@@ -183,17 +200,29 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
     time_list = convert_list_to_sci_not(input_list=float_range,
                                         prec=7, exp_digits=3)
+    print(".")
 
     # %%  Separating all boundary values into a dictionary with the boundary name as key
     output_dict = {}
     output_dict_2 = {}
 
     for index, row in bnd_loc_geo.iterrows():
-        # print(index)
-        # print(row)
-        # if index < 6:  # TODO: Remove after testing
         wl_sel = wl.sel(lon=row['lon'], lat=row['lat'], method="nearest")
         wl_2 = wl_sel.to_numpy()  # convert to sci_not?
+        bnd_name = bnd_loc_geo.iloc[index, 2]
+        nan = 0
+        for j in wl_2:
+
+            if np.isnan(j):
+                nan += 1
+            elif not np.isnan(j):
+                nan = nan
+
+        if nan > 2 and bnd_name[-1] != 'b':
+            print(
+                f'Nan value present in {bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
+        mean = np.nanmean(wl_2)
+        wl_2 = np.nan_to_num(wl_2, nan=mean)
         output_dict[row['boundaries']] = wl_2
 
     for bnd_point_key, bnd_point_wl_list in output_dict.items():
@@ -211,6 +240,14 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
         list_in_dict.append(bnd_point_wl_list_sci_not)
         output_dict_2[bnd_point_key[:-2]] = list_in_dict
 
+    print(".")
+    print(".")
+    print("Water level dataset extracted")
+    print(".")
+    print('Writing file')
+    print(".")
+    print(".")
+    print(".")
     # %% write the bct file
 
     try:

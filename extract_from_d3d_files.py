@@ -87,8 +87,8 @@ def extract_coord_from_d3d_grd(path_grd, request_list):
                 index_name = 'm'
             else:
                 index_name = 'n'
-            print(
-                f'Requested {index_name} index {index_request} substituted for max {index_name} index {index_max}.')
+            # print(
+            #     f'Requested {index_name} index {index_request} substituted for max {index_name} index {index_max}.')
 
             index_request = index_max  # action down here due to print statement
 
@@ -111,7 +111,7 @@ def extract_coord_from_d3d_grd(path_grd, request_list):
         if m_request not in range(1, m + 1):  # TODO: What if none or only one index in file? Error message?
             if m_request == m + 1:
                 inputs_valid = True  # no change, just for readability
-                print('For m index outside grid range (by 1 cell): Closest grid coordinate will be used.')
+                # print('For m index outside grid range (by 1 cell): Closest grid coordinate will be used.')
             else:
                 inputs_valid = False
     for n_request in n_request_list:

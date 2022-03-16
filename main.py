@@ -14,6 +14,12 @@ import os
 import time
 import bct_generator
 import bcw_generator
+from datetime import datetime
+from datetime import timedelta
+
+# Functions
+
+
 if __name__ == '__main__':
 
     t = time.time()  # start the time counter
@@ -22,15 +28,36 @@ if __name__ == '__main__':
     path_req = input('Enter the input/output path here (w/o quotation marks) : ')
     path = path_req  # 'F:/test'
     os.chdir(path)
-    print("Please read carefully the input criteria, ",
-          " and choose which file you would like")
-
-    req = input("For both files(1), for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
+    print('.')
+    print('.')
+    print('.')
+    print("Please read carefully the input criteria",
+          "and choose which file you would like")
+    print()
+    req = input("For both files type 1, for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
+    print('.')
+    print('.')
+    print('.')
     choice = float(req)
-
+    # %% CHOICE 1
     if choice == 1:
-        print("Please read carefully the input criteria, ",
-              " some are for the wave grid while some for flow")
+        # load time extracting function
+        def value_from_txt_file(file, string_name):
+            file1 = open(file, "r")
+            for line in file1:
+                # checking string is present in line or not
+                if '=' in line:
+                    if string_name in line:
+                        val = line.split('=')
+                        string_val = val[1].strip()
+                        break
+                        file1.close()  # close file
+                    # else:
+                        # print('{} is not in the file'.format(string_name))
+            return string_val
+
+        print("Please read carefully the input criteria,",
+              "some requests are for the wave grid while some for flow")
 
         grid_req = input('Enter name of the Flow grid file : ')
         grid_input = grid_req
@@ -56,37 +83,60 @@ if __name__ == '__main__':
         mdw_file_req = input('Enter the mdw file name : ')
         mdw_file = mdw_file_req  # 'test.mdw'
 
-        start_time_req = input(
-            'Enter the simulation start time in the format YYYY-mm-dd HH:MM:SS : ')
-        start_time = start_time_req  # '2015-02-01 12:00:00'
-        # TODO: automate extraction # this is used to slice the nc_file
-
-        end_time_req = input('Enter the simulation end time in the format YYYY-mm-dd HH:MM:SS : ')
-        end_time = end_time_req  # '2015-03-14 00:00:00'
-        # TODO: automate extraction # this is used to slice the nc_file
-
+        # request for time step
         step_req = input(
-            'Enter time step to extract data (max resolution is 20 mins) format 20 : ')
+            'Enter time step to extract water level data (max resolution is 20 mins) format 20 : ')
         step = float(step_req)  # 2.0000000e+001  # 20 minute step # max resolution for gsh data
 
         step_wave_req = input(
             'Enter time step to extract WAVE data (max resolution is 20 mins, should be multiples of 20) format 20 : ')
-
-        # 2.0000000e+001  # 20 minute step # max resolution for gsh data
         step_wave = float(step_wave_req)
 
+        # Extract start and end time from mdf file
+        string1 = 'Tstart'
+        tstart_val = value_from_txt_file(file=mdf_file, string_name=string1)
+        string2 = 'Tstop'
+        tstop_val = value_from_txt_file(file=mdf_file, string_name=string2)
+        string3 = 'Itdate'  # reference time
+        ref_time_unedited = value_from_txt_file(file=mdf_file, string_name=string3)
+        start = float(tstart_val)  # from mdf file
+        stop = float(tstop_val)  # from mdf file
+        ref_time = ref_time_unedited[1:11]
+        reference_time = ref_time.replace('-', '')  # remove the hyphen for the bct file format
+        # extract start time and end time from mdf
+        time_start = ref_time+" 00:00:00"  # Assuming it always starts at 00
+        date_format_str = "%Y-%m-%d %H:%M:%S"
+        # Calculate number of hours between ref time and sim time
+        start_time_steps = int(start/60)  # to convert minutes to hours
+        end_time_steps = int(stop/60)
+        # create datetime object from timestamp string
+        extracted_time = datetime.strptime(time_start, date_format_str)
+        start_time = extracted_time + timedelta(hours=start_time_steps)
+        # Convert datetime object to string in specific format
+        start_time = start_time .strftime("%Y-%m-%d %H:%M:%S")
+        end_time = extracted_time + timedelta(hours=end_time_steps)
+        end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
+        print('.')
+        print('.')
+        print('.')
+        print('.')
+        print("1 of 6")
         # %% output files
-        name_with_dot = mdf_file.partition('.')  # Use mdf file to extract bct file and output file
+        # Use mdf file to extract bct file name and output file
+        name_with_dot = mdf_file.partition('.')
         name_until_dot = name_with_dot[0]
         bct_file_name = '{}.bct'.format(name_until_dot)
         path_out_file = '{}.csv'.format(name_until_dot)
 
-        # Use mdf file to extract bct file and output file
+        # Use mdw file to extract bcw file name and output file
         wave_name_with_dot = mdw_file.partition('.')
         wave_name_until_dot = wave_name_with_dot[0]
         bcw_file = '{}.bcw'.format(wave_name_until_dot)
         wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
-
+        print('.')
+        print("2 of 6")
+        print('.')
+        print('.')
         # %% Create the csv file for flow boundaries
         bnd_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(path_bnd=bnd_input)
 
@@ -96,9 +146,14 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_grd_output, out_path=path_out_file)
-
+        print('.')
+        print('.')
+        print('.')
         print('The process of creating',
-              ' the boundary location csv file for flow is completed')
+              'the boundary location csv file for flow is completed - 3 of 6')
+        print('.')
+        print('.')
+        print('.')
 
         # %% Create the csv file for wave boundaries
         bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
@@ -110,9 +165,11 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
-
+        print('.')
+        print('.')
+        print('.')
         print('The process of creating',
-              ' the boundary location csv file for Wave is completed')
+              ' the boundary location csv file for Wave is completed - 4 of 6')
 
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
@@ -120,10 +177,13 @@ if __name__ == '__main__':
             boundaries=boundaries, nc_file=nc_file, mdf_file=mdf_file, step=step,
             bct_file_name=bct_file_name)
 
+        t_2 = time.time()
+
         # %% end the time counter
+        print('.')
         print('The process of extracting water level has now completed in : ')
         elapsed = time.time() - t
-        print(str(elapsed) + " sec")
+        print(str(elapsed) + " sec - 5 of 6")
 
         # %% Create the bcw file
         boundaries_wave = wave_path_out_file
@@ -132,10 +192,17 @@ if __name__ == '__main__':
             end_time=end_time, step_wave=step_wave, bcw_file_name=bcw_file)
 
         # %%
+        print('.')
         print('The process of extracting wave boundary conditions has now completed in : ')
-        elapsed = time.time() - t
-        print(str(elapsed) + " sec")
+        elapsed = time.time() - t_2
+        print(str(elapsed) + " sec - 6 of 6")
+        print('.')
+        print('.')
+        print('.')
+        elapsed_final = time.time() - t
+        print(f'Total time taken for both files is {elapsed_final/60} mins')
 
+    # %% CHOICE 2
     elif choice == 2:
         grid_req = input('Enter name of the Flow grid file : ')
         grid_input = grid_req
@@ -158,6 +225,8 @@ if __name__ == '__main__':
         name_until_dot = name_with_dot[0]
         bct_file_name = '{}.bct'.format(name_until_dot)
         path_out_file = '{}.csv'.format(name_until_dot)
+        print('.')
+        print("1 of 3")
 
         # %% Create the csv file for flow boundaries
         bnd_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(path_bnd=bnd_input)
@@ -168,9 +237,11 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_grd_output, out_path=path_out_file)
-
+        print('.')
+        print('.')
+        print('.')
         print('The process of creating',
-              ' the boundary location csv file for flow is completed')
+              'the boundary location csv file for flow is completed - 2 of 3')
 
         # %% Create the bct file
         boundaries = path_out_file  # the csv file generated from process one
@@ -179,10 +250,11 @@ if __name__ == '__main__':
             bct_file_name=bct_file_name)
 
         # %% end the time counter
+        print('.')
         print('The process of extracting water level has now completed in : ')
         elapsed = time.time() - t
-        print(str(elapsed) + " sec")
-
+        print(str(elapsed) + " sec - 3 of 3")
+    # %% CHOICE 3
     elif choice == 3:
         # %% BCW section input files
         grid_wave_req = input('Enter name of the Wave grid file : ')
@@ -218,6 +290,8 @@ if __name__ == '__main__':
         wave_name_until_dot = wave_name_with_dot[0]
         bcw_file = '{}.bcw'.format(wave_name_until_dot)
         wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
+        print('.')
+        print("1 of 3")
 
         # %% Create the csv file for wave boundaries
         bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
@@ -229,9 +303,15 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
-
+        print('.')
+        print('.')
+        print('.')
         print('The process of creating',
-              ' the boundary location csv file for wave is completed')
+              ' the boundary location csv file for wave is completed - 2 of 3')
+        print('.')
+        print('.')
+        print('.')
+        print('Initiating wave parameter extraction')
 
         # %% Create the bcw file
         boundaries_wave = wave_path_out_file
@@ -240,10 +320,11 @@ if __name__ == '__main__':
             end_time=end_time, step_wave=step_wave, bcw_file_name=bcw_file)
 
         # %%
+        print('.')
         print('The process of extracting wave boundary conditions has now completed in : ')
         elapsed = time.time() - t
-        print(str(elapsed) + " sec")
-
+        print(str(elapsed) + " sec - 3 of 3")
+    # %% CHOICE 4
     elif choice == 4:
         grid_req = input('Enter name of the grid file : ')
         grid_input = grid_req
@@ -255,6 +336,8 @@ if __name__ == '__main__':
         wave_name_with_dot = grid_input.partition('.')
         wave_name_until_dot = wave_name_with_dot[0]
         wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
+        print('.')
+        print("1 of 2")
 
         # %% Create the csv file for wave boundaries
         bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
@@ -266,8 +349,10 @@ if __name__ == '__main__':
 
         output_methods.write_bnd_coord_ascii(
             bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
-
+        print('.')
+        print('.')
+        print('.')
         print('The process of creating',
-              ' the boundary location csv file is completed')
+              ' the boundary location csv file is completed - 2 of 2')
     else:
         print("You probably din't insert the number right, Please run again! ")

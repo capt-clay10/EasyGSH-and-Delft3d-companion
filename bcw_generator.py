@@ -12,6 +12,7 @@ def bcw_file_generator(
     import os
     import csv
     import math
+    import statistics as st
 
     try:
         import utm
@@ -30,11 +31,9 @@ def bcw_file_generator(
             str(err_4) +
             ' This package also requires extra dependencies like netCDF4, h5netcdf and possibly scipy')
 
-    # %% Set path
-
-    # path_req = input('Enter the input/output path here (w/o quotation marks) : ')
-    # path = 'F:/test'
-    # os.chdir(path)
+    print(".")
+    print(".")
+    print("Import check done")
 
     # %% Create functions
 
@@ -79,7 +78,64 @@ def bcw_file_generator(
     def extract_data_for_loc(dataset, dataframe_loc, output_dict):
         for index, row in dataframe_loc.iterrows():
             dataset_sel = dataset.sel(lon=row['lon'], lat=row['lat'], method="nearest")
-            dataset_2 = dataset_sel.to_numpy()  # convert to sci_not?
+            dataset_2 = dataset_sel.to_numpy()  # convert to numpy array
+            bnd_name = bnd_loc_geo.iloc[index, 2]
+            nan = 0
+            for j in dataset_2:
+
+                if np.isnan(j):
+                    nan += 1
+                elif not np.isnan(j):
+                    nan = nan
+
+            if nan > 2 and bnd_name[-1] != 'b':
+                print(
+                    f'Nan value present in {bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
+            mean = np.nanmean(dataset_2)
+            dataset_3 = np.nan_to_num(dataset_2, nan=mean)
+            output_dict[row['boundaries']].append(dataset_3)
+
+    def extract_dir_data_for_loc(dataset, dataframe_loc, output_dict):
+        for index, row in dataframe_loc.iterrows():
+            bnd_name = bnd_loc_geo.iloc[index, 2]
+            dataset_sel = dataset.sel(lon=row['lon'], lat=row['lat'], method="nearest")
+            dataset_2 = dataset_sel.to_numpy()
+            # Identify nan values and print them
+            nan = 0
+            for j in dataset_2:
+
+                if np.isnan(j) or j == - 0.017452405765652657 or j == 0.9998477101325989:
+                    nan += 1
+                elif not np.isnan(j):
+                    nan = nan
+
+            if nan > 2 and bnd_name[-1] != 'b':
+                print(
+                    f'Nan value present in '
+                    f'{bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
+
+            # Calculate mode of the non nan values
+            to_calculate_1 = dataset_2[~np.isnan(dataset_2)]  # index for all non nan values
+            mode_1 = st.mode(to_calculate_1)  # Claculate mode
+            dataset_2 = np.nan_to_num(dataset_2, nan=mode_1)
+            # Replace nan with mode of the dataset
+            for i in dataset_2:
+                if i == -0.017452405765652657:
+                    to_calculate = dataset_2[np.where(dataset_2 != -0.017452405765652657)]
+                    # median = np.median(to_calculate)
+                    mode = st.mode(to_calculate)
+                    # mean_1 = np.mean(dataset_2, where=(dataset_2 != -0.017452405765652657))
+                    dataset_2 = np.where((dataset_2 > -0.01745242) &
+                                         (dataset_2 < -0.01745240), mode, dataset_2)
+                    # output_dict[row['boundaries']].append(dataset_3)  # automise boundary selection
+                elif i == 0.9998477101325989:
+                    to_calculate = dataset_2[np.where(dataset_2 != 0.9998477101325989)]
+                    # median = np.median(to_calculate)
+                    mode = st.mode(to_calculate)
+                    # mean_1 = np.mean(dataset_2, where=(dataset_2 != 0.9998477101325989))
+                    dataset_2 = np.where((dataset_2 > 0.99984) & (
+                        dataset_2 < 0.99985), mode, dataset_2)
+
             output_dict[row['boundaries']].append(dataset_2)  # automise boundary selection
 
     def value_from_txt_file(file, string_name):
@@ -102,29 +158,32 @@ def bcw_file_generator(
             new_format = format(fltt, '.{}f'.format(decimal_digits))
             string_list.append(new_format)
         return string_list
-
+    print(".")
     # %% Open input files
     bnd_loc = pd.read_csv(boundaries_wave, names=['boundary', 'easting', 'northing'], )
 
     data = xr.open_dataset(nc_file_wave)
+
+    print(".")
 
     # %% Extract information from mdw file
 
     ref_date_unedited = start_time  # because reference time is not reference date
     ref_date_unedited = start_time.split(' ')[0]
     ref_date = ref_date_unedited.replace('-', '')
+    print(".")
 
     # %% Generate the time steps for bcw
     min_data_time_step = 20  # The time resolution of easyGsh dataset
     bcw_time_start = 0.0  # the format accepted in bcw files
     one_time_step_bcw = float(step_wave)
-
+    print(".")
     # %% Configuring time step to adhere to the coupling interval
     if one_time_step_bcw <= 20:
         time_step_data = int(1)
     elif one_time_step_bcw > 20:
         time_step_data = int(one_time_step_bcw / min_data_time_step)
-
+    print(".")
     # %% correcting for 12 hour time difference in gsh
     from datetime import timedelta
     from datetime import datetime
@@ -159,6 +218,7 @@ def bcw_file_generator(
     wave_dir_x = dataset['Mesh2_face_Wellenrichtungsvektor_x_2d']
     wave_dir_y = dataset['Mesh2_face_Wellenrichtungsvektor_y_2d']
 
+    print("Time lag for bcw corrected")
     # %% Convert to geographic coordinates
 
     easting = bnd_loc['easting']
@@ -172,7 +232,7 @@ def bcw_file_generator(
     bnd_loc_geo = bnd_loc_geo.T  # transpose the dataframe
     bnd_loc_geo.columns = ['lat', 'lon']
     bnd_loc_geo['boundaries'] = bnd  # adding the boundary names
-
+    print(".")
     # %% Extract nautical direction from X & Y components
 
     extracted_x_y_dict = {}  # pre allocate dict
@@ -180,10 +240,10 @@ def bcw_file_generator(
         extracted_x_y_dict[row['boundaries']] = []  # Create keys for the dict
 
     # Extract data and store in the preallocated dict
-    extract_data_for_loc(dataset=wave_dir_x, dataframe_loc=bnd_loc_geo,
-                         output_dict=extracted_x_y_dict)
-    extract_data_for_loc(dataset=wave_dir_y, dataframe_loc=bnd_loc_geo,
-                         output_dict=extracted_x_y_dict)
+    extract_dir_data_for_loc(dataset=wave_dir_x, dataframe_loc=bnd_loc_geo,
+                             output_dict=extracted_x_y_dict)
+    extract_dir_data_for_loc(dataset=wave_dir_y, dataframe_loc=bnd_loc_geo,
+                             output_dict=extracted_x_y_dict)
 
     # Vectorise single value functions so they can handle arrays.
     tan_inverse = np.vectorize(math.atan2)
@@ -197,7 +257,7 @@ def bcw_file_generator(
         # use negative y and x to get nautical directions (clockwise)
         direction_with_neg = (rad_to_deg(tan_inverse(-y, -x))) + 180
         direction_dict[key] = direction_with_neg
-
+    print("Wave direction calculated from x-y components according to nautical convention")
     # %% create the time list for the swan file
 
     total_time_steps = len(direction_with_neg)  # get the max number of datapoints
@@ -207,7 +267,7 @@ def bcw_file_generator(
 
     # convert the time list into the swan format that is '.2f'
     time_swan = convert_float_fstr(float_list=float_range, decimal_digits=2)
-
+    print(".")
     # %% Extract other datasets
 
     extracted_dataset_dict = {}
@@ -222,13 +282,13 @@ def bcw_file_generator(
 
     extract_data_for_loc(dataset=dir_spread, dataframe_loc=bnd_loc_geo,
                          output_dict=extracted_dataset_dict)
-
+    print("Wave parameter datasets extracted")
     # %% delete the b values from the dictionary
 
     for k in list(extracted_dataset_dict.keys()):
         if k.split('_')[1] == 'b':
             del extracted_dataset_dict[k]
-
+    print(".")
     # %% convert to swan format and to strings
 
     converted_dataset_dict = {}
@@ -249,6 +309,12 @@ def bcw_file_generator(
         converted_dataset_dict[key].append(
             convert_float_fstr(float_list=dir_spread, decimal_digits=4))
 
+    print("Converted to Delft3D wave module format")
+    print(".")
+    print('Writing file')
+    print(".")
+    print(".")
+    print(".")
     # %% write the bcw file
 
     # calculate the length integral for time column
