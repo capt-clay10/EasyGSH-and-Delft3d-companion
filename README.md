@@ -18,7 +18,13 @@ This code creates files for the Delft3D module
 
 # UPDATES
 
-* No need to add start time and end time to generate bct file, it extracts it now directly from the .mdf file. (For .bcw still needs manual input)
+* No need to add start time and end time for generating both the bct and bcw file together, it extracts it now directly from the .mdf file. *(To be noted, if you wish to create just the bcw file, you still need to give this information)*
+* The script now performs a check for nan values in the dataset and displays boundaries containing more than **2** nan values.
+* The script at this stage replaces the nan values with the **mode** of values within that boundary.
+
+# Working on
+
+* Writing the wave boundary file directly to the bcw file to avoid manual entering in the GUI
 
 ## As of now it is a three part process [ Please run just the main.py file for results.]
 
@@ -44,7 +50,7 @@ The third process requires mdw file, the wave netcdf file from easygsh and the w
 1) Use the flow gui to make boundaries on your wave grid (**boundary name should be the same as your wave boundary name**) and save the wave.bnd file. ***NOTE: Use this opportunity to make several boundaries this will create the effect of space varying conditions. (atleast 2km in length))***
 2) Use the now generated wave.bnd file and the wave.grd in the script to generate the boundary_location.csv
 3) Now open the boundaries section in the wave gui and manually set the boundaries (**same names as step1**) with the x-y coordinates generated in the csv file
-4) You can now run the scrip to generate the bcw file. **Check for nans in the file, some boundaries might not have data**
+4) You can now run the script to generate the bcw file.
 5) Once completed, open the mdw file and add the key word as in the manual with the appropriate format (TSeriesFile= wave.bcw)      
 6) In the mdw file , in the section Boundaries, look for and delete the lines with Wave Height, Peak period, Direction and Directional spread.          
 
