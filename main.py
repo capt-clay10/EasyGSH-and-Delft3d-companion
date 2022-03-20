@@ -35,7 +35,14 @@ if __name__ == '__main__':
     print("Please read carefully the input criteria",
           "and choose which file you would like")
     print()
-    req = input("For both files type 1, for bct(2), for bcw(3) and for bnd_loc.csv(4) : ")
+    print('Type of files offered:',
+          'For all files, type 1',
+          'For bct file, type 2',
+          'For bcw file, type 3',
+          'For boundary location csv file, type 4',
+          'For boundary location and mdw file, type 5', sep='\n')
+    print()
+    req = input("Enter number : ")
     print('.')
     print('.')
     print('.')
@@ -364,5 +371,43 @@ if __name__ == '__main__':
         print('.')
         print('The process of creating',
               ' the boundary location csv file is completed - 2 of 2')
+    elif choice == 5:
+        grid_req = input('Enter name of the grid file : ')
+        grid_input = grid_req
+
+        bnd_req = input('Enter name of the bnd file : ')
+        bnd_input = bnd_req
+
+        mdw_file_req = input('Enter the mdw file name : ')
+        mdw_file = mdw_file_req  # 'test.mdw'
+
+        # Use grid file to extract bct file and output file
+        wave_name_with_dot = grid_input.partition('.')
+        wave_name_until_dot = wave_name_with_dot[0]
+        wave_path_out_file = '{}.csv'.format(wave_name_until_dot)
+        print('.')
+        print("1 of 3")
+
+        # %% Create the csv file for wave boundaries
+        bnd_wave_grd_indices_output = extract_from_d3d_files.extract_bnd_grd_indices(
+            path_bnd=bnd_input)
+
+        coord_from_d3d_wave_grd_output = extract_from_d3d_files.extract_coord_from_d3d_grd(
+            path_grd=grid_input,
+            request_list=bnd_wave_grd_indices_output)
+
+        output_methods.write_bnd_coord_ascii(
+            bnd_data_list=coord_from_d3d_wave_grd_output, out_path=wave_path_out_file)
+        print('.')
+        print('.')
+        print('.')
+        print('The process of creating',
+              ' the boundary location csv file is completed - 2 of 3')
+
+        # %% create mdw file
+        boundaries_wave = wave_path_out_file
+        mdw_writer.write_mdw_file(mdw_file=mdw_file, boundaries_wave=boundaries_wave)
+        print('New mdw file created')
+
     else:
         print("You probably din't insert the number right, Please run again! ")
