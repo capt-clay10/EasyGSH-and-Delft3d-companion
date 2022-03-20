@@ -1,13 +1,5 @@
-""" Combine modules to extract coordinates of boundaries and then extract water level information
-for the same.
-and wave data : significant height, direction , peak period, directional spread"""
-
-# Notes to self:
-# Usually (?) N corresponds to +/-x, M corresponds to +/-y
-# ETA = n. There are 2*N ETA records in total:
-# 1st set of N ETA records contains M x coordinates, 2nd contains M y coordinates
-# just trying pycharm
-
+"""RUN THIS FILE"""
+# %% import modules
 import output_methods
 import extract_from_d3d_files
 import os
@@ -17,8 +9,6 @@ import bcw_generator
 import mdw_writer
 from datetime import datetime
 from datetime import timedelta
-
-# Functions
 
 
 if __name__ == '__main__':
@@ -199,7 +189,6 @@ if __name__ == '__main__':
             boundaries_wave=boundaries_wave, nc_file_wave=nc_file_wave, mdw_file=mdw_file, start_time=start_time,
             end_time=end_time, step_wave=step_wave, bcw_file_name=bcw_file)
 
-        # %%
         print('.')
         print('The process of extracting wave boundary conditions has now completed in : ')
         elapsed = time.time() - t_2
@@ -328,8 +317,6 @@ if __name__ == '__main__':
         bcw = bcw_generator.bcw_file_generator(
             boundaries_wave=boundaries_wave, nc_file_wave=nc_file_wave, mdw_file=mdw_file, start_time=start_time,
             end_time=end_time, step_wave=step_wave, bcw_file_name=bcw_file)
-
-        # %%
         print('.')
         print('The process of extracting wave boundary conditions has now completed in : ')
         elapsed = time.time() - t
