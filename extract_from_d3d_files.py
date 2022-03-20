@@ -118,7 +118,7 @@ def extract_coord_from_d3d_grd(path_grd, request_list):
         if n_request not in range(1, n + 1):
             if n_request == n + 1:
                 inputs_valid = True  # no change, just for readability
-                print('For n index outside grid range (by 1 cell): Closest grid coordinate will be used.')
+                # print('For n index outside grid range (by 1 cell): Closest grid coordinate will be used.')
             else:
                 inputs_valid = False
 

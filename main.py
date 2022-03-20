@@ -14,6 +14,7 @@ import os
 import time
 import bct_generator
 import bcw_generator
+import mdw_writer
 from datetime import datetime
 from datetime import timedelta
 
@@ -199,6 +200,10 @@ if __name__ == '__main__':
         print('.')
         print('.')
         print('.')
+        # %% Write the new mdw file
+        mdw_writer.write_mdw_file(mdw_file=mdw_file, boundaries_wave=boundaries_wave)
+        print('New mdw file created')
+        print('.')
         elapsed_final = time.time() - t
         print(f'Total time taken for both files is {elapsed_final/60} mins')
 
@@ -324,6 +329,11 @@ if __name__ == '__main__':
         print('The process of extracting wave boundary conditions has now completed in : ')
         elapsed = time.time() - t
         print(str(elapsed) + " sec - 3 of 3")
+        print('.')
+        print('.')
+        # %% Write the new mdw file
+        mdw_writer.write_mdw_file(mdw_file=mdw_file, boundaries_wave=boundaries_wave)
+        print('New mdw file created')
     # %% CHOICE 4
     elif choice == 4:
         grid_req = input('Enter name of the grid file : ')

@@ -220,7 +220,7 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
 
         if nan > 2 and bnd_name[-1] != 'b':
             print(
-                f'Nan value present in {bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
+                f'Nan value present in {bnd_name[0:-2]} {nan} times in {wl_sel.attrs["long_name"][0:-9]}')
         mean = np.nanmean(wl_2)
         wl_2 = np.nan_to_num(wl_2, nan=mean)
         output_dict[row['boundaries']] = wl_2
