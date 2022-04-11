@@ -93,7 +93,7 @@ def write_mdw_file(mdw_file, boundaries_wave):
                       '   SpectrumSpec         = parametric                   ',
                       '   SpShapeType          = jonswap                      ',
                       '   PeriodType           = peak                         ',
-                      '   DirSpreadType        = power                        ',
+                      '   DirSpreadType        = degrees                        ',
                       '   PeakEnhanceFac       =  3.3000000e+000              ',
                       '   GaussSpread          =  9.9999998e-003              ']
 
