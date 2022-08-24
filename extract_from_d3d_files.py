@@ -144,12 +144,24 @@ def extract_coord_from_d3d_grd(path_grd, request_list):
                 index_request=n_b_request, index_max=n, is_m_index=False)
 
             # Extract x values
+            # Extract x values
             bnd_dict['x_a'] = float(x_values[n_a_request - 1][m_a_request])
+            if bnd_dict['x_a'] == 0:
+                # if grid is cut and substitution logic above doesn't work
+                bnd_dict['x_a'] = float(x_values[n_a_request - 2][m_a_request - 1])
+
             bnd_dict['x_b'] = float(x_values[n_b_request - 1][m_b_request])
+            if bnd_dict['x_b'] == 0:
+                bnd_dict['x_b'] = float(x_values[n_b_request - 2][m_b_request - 1])
 
             # Extract y values
             bnd_dict['y_a'] = float(y_values[n_a_request - 1][m_a_request])
+            if bnd_dict['y_a'] == 0:
+                bnd_dict['y_a'] = float(y_values[n_a_request - 2][m_a_request - 1])
+
             bnd_dict['y_b'] = float(y_values[n_b_request - 1][m_b_request])
+            if bnd_dict['y_b'] == 0:
+                bnd_dict['y_b'] = float(y_values[n_b_request - 2][m_b_request - 1])
 
             bnd_dict_count += 1
 

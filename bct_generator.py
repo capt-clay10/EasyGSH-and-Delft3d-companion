@@ -19,7 +19,6 @@ def bct_file_generator(boundaries, nc_file, mdf_file, step, bct_file_name):
     import numpy as np
     import os
     import csv
-    import time
 
     try:
         import utm

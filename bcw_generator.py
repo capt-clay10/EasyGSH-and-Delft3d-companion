@@ -114,10 +114,16 @@ def bcw_file_generator(
                     f'Nan value present in '
                     f'{bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
 
-            # Calculate mode of the non nan values
-            to_calculate_1 = dataset_2[~np.isnan(dataset_2)]  # index for all non nan values
-            mode_1 = st.mode(to_calculate_1)  # Claculate mode
-            dataset_2 = np.nan_to_num(dataset_2, nan=mode_1)
+            # treating the nan
+            if np.count_nonzero(np.isnan(dataset_2)) == len(dataset_2):
+                to_calculate_1 = dataset_2[~(np.isnan(dataset_2))]
+                replace = np.mean(to_calculate_1)
+            elif np.count_nonzero(np.isnan(dataset_2)) < (len(dataset_2)):
+                to_calculate_1 = dataset_2[~(np.isnan(dataset_2))]
+                replace = st.mode(to_calculate_1)  # Claculate mode
+
+            dataset_2 = np.nan_to_num(dataset_2, nan=replace)
+
             # Replace nan with mode of the dataset
             for i in dataset_2:
                 if i == -0.017452405765652657:
