@@ -124,7 +124,7 @@ def bcw_file_generator(
 
             dataset_2 = np.nan_to_num(dataset_2, nan=replace)
 
-            # Replace nan with mode of the dataset
+            # Replace not nan but empty numbers with mode of the dataset
             for i in dataset_2:
                 if i == -0.017452405765652657:
                     to_calculate = dataset_2[np.where(dataset_2 != -0.017452405765652657)]

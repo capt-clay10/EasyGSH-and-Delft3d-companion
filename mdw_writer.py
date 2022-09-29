@@ -2,6 +2,7 @@
 def write_mdw_file(mdw_file, boundaries_wave):
     import pandas as pd
     import os
+    import numpy as np
 
     # %% input files
 
@@ -71,6 +72,9 @@ def write_mdw_file(mdw_file, boundaries_wave):
             if string_name in lines:
                 line_number.append(number)
                 break
+
+    if np.count_nonzero(line_number) == 0:
+        print("Please add atleast one Boundary in mdw file, it doesnt need to have the exact coordinates")
 
     with open(mdw_file, 'r') as m:
         with open(file_name, 'a') as f:

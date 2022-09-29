@@ -70,13 +70,13 @@ if __name__ == '__main__':
         bnd_wave_input = bnd_wave_req
 
         nc_file_req = input('Enter the Water level NetCDF file name : ')
-        nc_file = nc_file_req  # '2006_1000m_waterlevel_2D.nc'
+        nc_file = nc_file_req  # '2011_1000m_waterlevel_2D.nc'
 
         mdf_file_req = input('Enter the mdf file name : ')
         mdf_file = mdf_file_req  # 'test.mdf'
 
         nc_file_wave_req = input('Enter the Wave NetCDF file name : ')
-        nc_file_wave = nc_file_wave_req  # '2006_1000m_wave_2D.nc'
+        nc_file_wave = nc_file_wave_req  # '2011_1000m_wave_2D.nc'
 
         mdw_file_req = input('Enter the mdw file name : ')
         mdw_file = mdw_file_req  # 'test.mdw'
