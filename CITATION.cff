@@ -1,0 +1,33 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Boundary condition file generator for Delft3D4 with
+  EasyGSH dataset
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: 'Clayton '
+    family-names: Soares
+    email: clayton.soares@ifg.uni-kiel.de
+    orcid: 'https://orcid.org/0000-0001-6780-2305'
+  - given-names: Arne
+    family-names: Knies
+    email: arne.knies@ifg.uni-kiel.de
+identifiers:
+  - type: url
+    value: >-
+      https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git
+abstract: >-
+  Extracts data (water level and wave, S-T varying) from
+  provided EasyGSH dataset and writes it into Delft3D
+  readable boundary condition file format. 
+keywords:
+  - EasyGSH
+  - Delft3D
+  - Boundary input
+  - BCW and BCT file generator
+license: MIT
