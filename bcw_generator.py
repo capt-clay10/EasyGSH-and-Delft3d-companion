@@ -41,7 +41,8 @@ def bcw_file_generator(
         s = "%.*e" % (prec, fltt)
         # print(f's: {s}')
         if s == 'nan':
-            s = "%.*e" % (prec, 0)  # TODO: is it a good idea to replace nan with 0?
+            # TODO: is it a good idea to replace nan with 0?
+            s = "%.*e" % (prec, 0)
         mantissa, exp = s.split('e')
         # add 1 to digits as 1 is taken by sign +/-
         return "%se%+0*d" % (mantissa, exp_digits + 1, int(exp))
@@ -49,7 +50,8 @@ def bcw_file_generator(
     def convert_list_to_sci_not(input_list, prec, exp_digits):
         converted = []
         for flt in input_list:
-            sci = convert_flt_to_sci_not(fltt=flt, prec=prec, exp_digits=exp_digits)
+            sci = convert_flt_to_sci_not(
+                fltt=flt, prec=prec, exp_digits=exp_digits)
             converted.append(sci)
 
         return converted
@@ -77,7 +79,8 @@ def bcw_file_generator(
 
     def extract_data_for_loc(dataset, dataframe_loc, output_dict):
         for index, row in dataframe_loc.iterrows():
-            dataset_sel = dataset.sel(lon=row['lon'], lat=row['lat'], method="nearest")
+            dataset_sel = dataset.sel(
+                lon=row['lon'], lat=row['lat'], method="nearest")
             dataset_2 = dataset_sel.to_numpy()  # convert to numpy array
             bnd_name = bnd_loc_geo.iloc[index, 2]
             nan = 0
@@ -98,7 +101,8 @@ def bcw_file_generator(
     def extract_dir_data_for_loc(dataset, dataframe_loc, output_dict):
         for index, row in dataframe_loc.iterrows():
             bnd_name = bnd_loc_geo.iloc[index, 2]
-            dataset_sel = dataset.sel(lon=row['lon'], lat=row['lat'], method="nearest")
+            dataset_sel = dataset.sel(
+                lon=row['lon'], lat=row['lat'], method="nearest")
             dataset_2 = dataset_sel.to_numpy()
             # Identify nan values and print them
             nan = 0
@@ -127,7 +131,8 @@ def bcw_file_generator(
             # Replace not nan but empty numbers with mode of the dataset
             for i in dataset_2:
                 if i == -0.017452405765652657:
-                    to_calculate = dataset_2[np.where(dataset_2 != -0.017452405765652657)]
+                    to_calculate = dataset_2[np.where(
+                        dataset_2 != -0.017452405765652657)]
                     # median = np.median(to_calculate)
                     mode = st.mode(to_calculate)
                     # mean_1 = np.mean(dataset_2, where=(dataset_2 != -0.017452405765652657))
@@ -135,14 +140,16 @@ def bcw_file_generator(
                                          (dataset_2 < -0.01745240), mode, dataset_2)
                     # output_dict[row['boundaries']].append(dataset_3)  # automise boundary selection
                 elif i == 0.9998477101325989:
-                    to_calculate = dataset_2[np.where(dataset_2 != 0.9998477101325989)]
+                    to_calculate = dataset_2[np.where(
+                        dataset_2 != 0.9998477101325989)]
                     # median = np.median(to_calculate)
                     mode = st.mode(to_calculate)
                     # mean_1 = np.mean(dataset_2, where=(dataset_2 != 0.9998477101325989))
                     dataset_2 = np.where((dataset_2 > 0.99984) & (
                         dataset_2 < 0.99985), mode, dataset_2)
 
-            output_dict[row['boundaries']].append(dataset_2)  # automise boundary selection
+            output_dict[row['boundaries']].append(
+                dataset_2)  # automise boundary selection
 
     def value_from_txt_file(file, string_name):
         file1 = open(file, "r")
@@ -166,7 +173,8 @@ def bcw_file_generator(
         return string_list
     print(".")
     # %% Open input files
-    bnd_loc = pd.read_csv(boundaries_wave, names=['boundary', 'easting', 'northing'], )
+    bnd_loc = pd.read_csv(boundaries_wave, names=[
+                          'boundary', 'easting', 'northing'], )
 
     data = xr.open_dataset(nc_file_wave)
 
@@ -216,7 +224,8 @@ def bcw_file_generator(
     # Convert datetime object to string in specific format
     end_time_lag = end_time_lag.strftime("%Y-%m-%d %H:%M:%S")
 
-    dataset = data.sel(nMesh2_data_time=slice(start_time_lag, end_time_lag, time_step_data))
+    dataset = data.sel(nMesh2_data_time=slice(
+        start_time_lag, end_time_lag, time_step_data))
 
     sig_height = dataset['Mesh2_face_signifikante_Wellenhoehe_2d']
     peak_period = dataset['Mesh2_face_Peak_Wellenperiode_2d']
@@ -260,14 +269,39 @@ def bcw_file_generator(
     for key, value in extracted_x_y_dict.items():
         x = extracted_x_y_dict[key][0]
         y = extracted_x_y_dict[key][1]
-        # use negative y and x to get nautical directions (clockwise)
-        direction_with_neg = (rad_to_deg(tan_inverse(-y, -x))) + 180
+        df = (pd.DataFrame([x, y])).transpose()
+        df.columns = ['x', 'y']
+
+        result = []
+        for index, row in df.iterrows():
+            x = df['x'][index]
+            y = df['y'][index]
+            if x > 0 and y > 0:
+                rad = math.atan2(x, y)
+                deg = math.degrees(rad)
+                result.append(deg)
+            elif x > 0 and y < 0:
+                rad = math.atan2(-y, x)
+                deg = (math.degrees(rad)) + 90
+                result.append(deg)
+            elif x < 0 and y < 0:
+                rad = math.atan2(-x, -y)
+                deg = (math.degrees(rad)) + 180
+                result.append(deg)
+            elif x < 0 and y > 0:
+                rad = math.atan2(y, -x)
+                deg = (math.degrees(rad)) + 270
+                result.append(deg)
+
+        direction_with_neg = result
         direction_dict[key] = direction_with_neg
     print("Wave direction calculated from x-y components according to nautical convention")
     # %% create the time list for the swan file
 
-    total_time_steps = len(direction_with_neg)  # get the max number of datapoints
-    time_stop_bcw = (one_time_step_bcw * total_time_steps)  # calculate end point
+    # get the max number of datapoints
+    total_time_steps = len(direction_with_neg)
+    # calculate end point
+    time_stop_bcw = (one_time_step_bcw * total_time_steps)
     float_range = np.arange(bcw_time_start, time_stop_bcw,
                             one_time_step_bcw).tolist()  # create a range of the input time
 
@@ -278,7 +312,8 @@ def bcw_file_generator(
 
     extracted_dataset_dict = {}
     for index, row in bnd_loc_geo.iterrows():
-        extracted_dataset_dict[row['boundaries']] = []  # Create keys for the dict
+        # Create keys for the dict
+        extracted_dataset_dict[row['boundaries']] = []
 
     extract_data_for_loc(dataset=sig_height, dataframe_loc=bnd_loc_geo,
                          output_dict=extracted_dataset_dict)
@@ -337,7 +372,8 @@ def bcw_file_generator(
     for key in converted_dataset_dict:
         bn_name = str(key)
         header_lines = [
-            "location             '{}                 '".format(bn_name.split('_')[0]),
+            "location             '{}                 '".format(
+                bn_name.split('_')[0]),
             "time-function        'non-equidistant'",
             "reference-time       {}".format(ref_date),
             "time-unit            'minutes'",
@@ -355,7 +391,8 @@ def bcw_file_generator(
                 # f.write('\r\n')
                 f.write('\n')
 
-            csv_writer = csv.writer(f, lineterminator='\n')  # lineterminator avoids carriage return
+            # lineterminator avoids carriage return
+            csv_writer = csv.writer(f, lineterminator='\n')
             count = 0
             bnd_data_list = converted_dataset_dict[key]
             for row in bnd_data_list[0]:
@@ -364,11 +401,14 @@ def bcw_file_generator(
                 # TODO: Adapt for longer periods
                 time_val = add_blank_pos_val(
                     input_str=bnd_data_list[0][count], length_integral=length_integral_val)
-                sig_height = add_blank_pos_val(input_str=bnd_data_list[1][count], length_integral=2)
+                sig_height = add_blank_pos_val(
+                    input_str=bnd_data_list[1][count], length_integral=2)
                 peak_period = add_blank_pos_val(
                     input_str=bnd_data_list[2][count], length_integral=2)
-                direction = add_blank_pos_val(input_str=bnd_data_list[3][count], length_integral=4)
-                dir_spread = add_blank_pos_val(input_str=bnd_data_list[4][count], length_integral=3)
+                direction = add_blank_pos_val(
+                    input_str=bnd_data_list[3][count], length_integral=4)
+                dir_spread = add_blank_pos_val(
+                    input_str=bnd_data_list[4][count], length_integral=3)
 
                 # Generate row content as single string
                 row_str = f'{time_val} {sig_height} {peak_period} {direction} {dir_spread}'
