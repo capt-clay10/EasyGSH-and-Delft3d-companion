@@ -2,21 +2,21 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: >-
-  Boundary condition file generator for Delft3D4 with
-  EasyGSH dataset
+title: '  Boundary condition file generator for Delft3D4 with EasyGSH dataset'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
 type: software
 authors:
-  - given-names: 'Clayton '
+  - given-names: Clayton Cyril
     family-names: Soares
     email: clayton.soares@ifg.uni-kiel.de
     orcid: 'https://orcid.org/0000-0001-6780-2305'
+    affiliation: 'CAU, kiel'
   - given-names: Arne
     family-names: Knies
     email: arne.knies@ifg.uni-kiel.de
+    affiliation: 'CAU, Kiel'
 identifiers:
   - type: url
     value: >-
@@ -27,7 +27,8 @@ abstract: >-
   readable boundary condition file format. 
 keywords:
   - EasyGSH
-  - Delft3D
-  - Boundary input
+  - Delft3D4
   - BCW and BCT file generator
 license: MIT
+commit: 9f403d581eac3abf92ae893343bb48311893ba34
+date-released: '2023-07-04'
