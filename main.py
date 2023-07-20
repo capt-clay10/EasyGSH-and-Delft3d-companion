@@ -9,6 +9,7 @@ import bct_year_overlap_file_generator
 import bcw_generator
 import bcw_year_overlap_file_generator
 import mdw_writer
+import sea_level_change
 from datetime import datetime
 from datetime import timedelta
 import warnings
@@ -38,7 +39,8 @@ if __name__ == '__main__':
           'For bcw file, type 4',
           'For bcw file overlapping over two years, type 5',
           'For boundary location csv file, type 6',
-          'For boundary location and mdw file, type 7', sep='\n')
+          'For boundary location and mdw file, type 7',
+          'For adding sea level change to .bct files, type 8', sep='\n')
     print()
     print('Important information : for choice 1 , boundary files cannot be generated with overlapping input years')
     print()
@@ -555,6 +557,27 @@ if __name__ == '__main__':
         mdw_writer.write_mdw_file(
             mdw_file=mdw_file, boundaries_wave=boundaries_wave)
         print('New mdw file created')
+
+    elif choice == 8:
+        bct_req = input('Enter name of the bct file : ')
+        bct_file_name = bct_req
+
+        cons_grad = input('Enter 1 for gradual and 2 for constant increase :')
+        cons_grad = int(cons_grad)
+        if cons_grad == 1:
+            type_inc = False
+        elif cons_grad == 2:
+            type_inc = True
+        else:
+            print("Please only type 1 or 2")
+
+        change_req = input('Enter sea level increase in m ( eg: 1) : ')
+        change_amount = int(change_req)
+
+        sea_level_change.add_wl(
+            bct_file_name, sea_level_change=change_amount, constant=type_inc)
+
+        print('sea level change added to water levels')
 
     else:
         print("You probably din't insert the number right, Please run again! ")
