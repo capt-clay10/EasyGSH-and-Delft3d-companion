@@ -1,4 +1,4 @@
-# bct_bcw_file_generator_for_EasyGSH
+# Generate .bct and .bcw file for Delft3D4 using EasyGSH dataset
 Source of data  **https://mdi-de.baw.de/easygsh/Easy_Viewer_syn.html#home**
 Citations for using data : **Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004**
 Please read the source document to understand how these datasets are generated, some quick points.
