@@ -22,9 +22,10 @@ Please read the source document to understand how these datasets are generated, 
 * xarray 
 
 # UPDATES
+* Add desired sea level rise to extracted water level time series (.bct files)
 * The script can extract boundary conditions for overlapping years. ( for example: when your simulation runs over 2003 December to 2004- January)
 * The script now also writes an mdw file with extracted xy boundary coordinates.
-* No need to add start time and end time for generating both the bct and bcw file together, it extracts it now directly from the .mdf file. *(To be noted, if you wish to create just the bcw file, you still need to give this information)*
+* No need to add start time and end time for generating both the .bct and .bcw file together, it extracts it now directly from the .mdf file. *(To be noted, if you wish to create just the .bcw file, you still need to give this information)*.
 * The script now performs a check for nan values in the dataset and displays boundaries containing more than **2** nan values.
 * The script at this stage replaces the nan values with the **mode** of values within that boundary.
 
