@@ -31,6 +31,7 @@ Please read the source document to understand how these datasets are generated, 
 
 # Working on
 
+* Adding variability in wave parameters for climate change scenarios. 
 * Creating a GUI interface
 * Better handling NaN values ( currently the nan values are replaced by mode values)
 
