@@ -64,7 +64,5 @@ The third process requires mdw file, the wave netcdf file from easygsh and the w
 ### As a personal note from a fellow modeler ###
 Always validate results yourself!
 
-* NOTE: The creators will at some point automate steps 2,3 and 6 
-    * Also calculation of the frequency bins and directional bins might be added
 
 
