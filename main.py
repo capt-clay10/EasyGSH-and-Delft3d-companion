@@ -566,8 +566,10 @@ if __name__ == '__main__':
         cons_grad = int(cons_grad)
         if cons_grad == 1:
             type_inc = False
+            type_add = 'gradual'
         elif cons_grad == 2:
             type_inc = True
+            type_add = 'constant'
         else:
             print("Please only type 1 or 2")
 
@@ -577,7 +579,7 @@ if __name__ == '__main__':
         sea_level_change.add_wl(
             bct_file_name, sea_level_change=change_amount, constant=type_inc)
 
-        print('sea level change added to water levels')
+        print(f'sea level change added to water levels, type {type_add}')
 
     else:
         print("You probably din't insert the number right, Please run again! ")
