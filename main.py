@@ -572,7 +572,7 @@ if __name__ == '__main__':
             print("Please only type 1 or 2")
 
         change_req = input('Enter sea level increase in m ( eg: 1) : ')
-        change_amount = int(change_req)
+        change_amount = float(change_req)
 
         sea_level_change.add_wl(
             bct_file_name, sea_level_change=change_amount, constant=type_inc)
