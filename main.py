@@ -344,7 +344,7 @@ if __name__ == '__main__':
         bnd_wave_input = bnd_wave_req
 
         nc_file_wave_req = input('Enter the NetCDF file name : ')
-        nc_file_wave = nc_file_wave_req  # '2015_1000m_wave_2D.nc'
+        nc_file_wave = nc_file_wave_req  # '1999_1000m_wave_2D.nc'
 
         mdw_file_req = input('Enter the mdw file name : ')
         mdw_file = mdw_file_req  # 'test.mdw'
