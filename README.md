@@ -22,7 +22,7 @@ Please read the source document to understand how these datasets are generated, 
 * xarray 
 
 # UPDATES
-* New Standalone GUI added for windows (EasyD3d.exe)
+* New Standalone GUI added for Windows (EasyD3d.exe)
 * Add desired sea level rise to extracted water level time series (.bct files)
 * The script can extract boundary conditions for overlapping years. ( for example: when your simulation runs over 2003 December to 2004- January)
 * The script now also writes an mdw file with extracted xy boundary coordinates.
@@ -36,7 +36,7 @@ Please read the source document to understand how these datasets are generated, 
 * Adding integration with COSMO wind field files.
 * Better handling NaN values ( currently the nan values are replaced by mode values)
 
-### Two choices are presented, you can run the **main.py** script in your Python environment to extract your files or use the standalone GUI **EasyD3d.exe**, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the **gui.py** to the executable GUI EasyD3d. 
+### Two choices are presented, you can run the <ins>main.py</ins> script in your Python environment to extract your files or use the standalone GUI <ins>EasyD3d.exe</ins>, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the <ins>gui.py</ins> to the executable GUI EasyD3d. 
 
 * Snippet of the GUI
 ![easyd3d](https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D/assets/98163811/4a652544-84f0-40bb-b9bb-f176ae528d7c)
