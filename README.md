@@ -36,7 +36,7 @@ Please read the source document to understand how these datasets are generated, 
 * Adding integration with COSMO wind field files.
 * Better handling NaN values ( currently the nan values are replaced by mode values)
 
-# Two choices are presented, you can run the **main.py** script in your python environment to extract your files or use the standalone GUI **EasyD3d.exe**, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the **gui.py** to the executable GUI EasyD3d. 
+## Two choices are presented, you can run the **main.py** script in your python environment to extract your files or use the standalone GUI **EasyD3d.exe**, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the **gui.py** to the executable GUI EasyD3d. 
 
 * Snippet of the GUI
 ![easyd3d](https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D/assets/98163811/4a652544-84f0-40bb-b9bb-f176ae528d7c)
