@@ -22,6 +22,7 @@ Please read the source document to understand how these datasets are generated, 
 * xarray 
 
 # UPDATES
+* New Standalone GUI added for Windows (EasyD3d.exe)
 * Add desired sea level rise to extracted water level time series (.bct files)
 * The script can extract boundary conditions for overlapping years. ( for example: when your simulation runs over 2003 December to 2004- January)
 * The script now also writes an mdw file with extracted xy boundary coordinates.
@@ -32,36 +33,31 @@ Please read the source document to understand how these datasets are generated, 
 # Working on
 
 * Adding variability in wave parameters for climate change scenarios. 
-* Creating a GUI interface
+* Adding integration with COSMO wind field files.
 * Better handling NaN values ( currently the nan values are replaced by mode values)
 
-## As of now it is a three-part process [ Please run just the main.py file for results.]
+### Two choices are presented, you can run the <ins>main.py</ins> script in your Python environment to extract your files or use the standalone GUI <ins>EasyD3d.exe</ins>, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the <ins>gui.py</ins> to the executable GUI EasyD3d. 
 
-### The User can choose if they want to create both files or either one or just the boundary location csv
+* Snippet of the GUI
+![easyd3d](https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D/assets/98163811/4a652544-84f0-40bb-b9bb-f176ae528d7c)
 
-The first process requires the .bnd file and .grd file that one can generate from the Delft3D GUI.
 
-In this process, the real-world coordinates are extracted from these files and exported as a .csv file (boundary location csv). **You get 2 CSV's one for flow boundaries and one for wave boundaries**
-
-The second process requires the mdf file, the water level netcdf file from EasyGSH and the CSV file created from process one.
-This part generates the .bct file in the same name as the mdf file. As an overview this process uses the xarray module to select and extract the water level data , where the locations are specified by the process one csv file. The data is then stored in lists with the boundary name as keys, which is then looped with the header information and written in the required .bct format. 
-
-The third process requires mdw file, the wave netcdf file from easygsh and the wave_csv generated from process one. It then creates a bcw file in the same fashion.
-**Important thing to note is, this code replicates the file format for a wave model with uniform wave boundary conditions along one boundary line for multiple time points.**
 
 ### Information about the BCW file
+
+**An important thing to note is, that this code replicates the file format for a SWAN wave model with uniform wave boundary conditions along one boundary line for multiple time points. so essentially if you make several boundaries one can create a space and time-varying effect**
 
 **The direction is between 0-360, in the nautical convention**
 **The directional spread is in degrees**
 
 #### The creator of this script recommends the following steps to create and use the bcw file:
 
-1) Use the flow gui to make boundaries on your wave grid (**boundary name should be the same as your wave boundary name**) and save the wave.bnd file. ***NOTE: Use this opportunity to make several boundaries this will create the effect of space varying conditions. (at least 2km in length))***
+1) Use the Delft3d flow GUI to make boundaries on your wave grid (**boundary name should be the same as your wave boundary name**) and save the wave.bnd file. ***NOTE: Use this opportunity to make several boundaries this will create the effect of space varying conditions. (at least 2km in length))***
 2) Use the now generated wave.bnd file and the wave.grd in the script to generate the boundary_location.csv
 3) You can now run the script to generate the bcw file and the new mdw file.
-4) Once completed, open the mdw file and add the key word as in the manual with the appropriate format (TSeriesFile= wave.bcw)
+4) Once completed, open the mdw file and add the keyword as in the manual with the appropriate format (**TSeriesFile= wave.bcw**)
 
-### As a personal note from a fellow modeler ###
+### As a personal note from a fellow modeller ###
 Always validate results yourself!
 
 
