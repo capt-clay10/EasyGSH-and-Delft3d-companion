@@ -20,7 +20,7 @@ authors:
 identifiers:
   - type: url
     value: >-
-      https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git
+      https://github.com/capt-clay10/EasyGSH-and-Delft3d-companion.git
 abstract: >-
   Extracts data (water level and wave, S-T varying) from
   provided EasyGSH dataset and writes it into Delft3D
