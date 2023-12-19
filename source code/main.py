@@ -1,18 +1,18 @@
+import warnings
+from datetime import timedelta
+from datetime import datetime
+import sea_level_change
+import mdw_writer
+import bcw_year_overlap_file_generator
+import bcw_generator
+import bct_year_overlap_file_generator
+import bct_generator
+import time
+import os
+import extract_from_d3d_files
+import output_methods
 """RUN THIS FILE"""
 # %% import modules
-import output_methods
-import extract_from_d3d_files
-import os
-import time
-import bct_generator
-import bct_year_overlap_file_generator
-import bcw_generator
-import bcw_year_overlap_file_generator
-import mdw_writer
-import sea_level_change
-from datetime import datetime
-from datetime import timedelta
-import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 

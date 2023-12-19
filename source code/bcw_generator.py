@@ -293,7 +293,8 @@ def bcw_file_generator(
                 deg = (math.degrees(rad)) + 270
                 result.append(deg)
 
-        direction_with_neg = result
+        result_corrected = [(direction + 180) % 360 for direction in result]
+        direction_with_neg = result_corrected
         direction_dict[key] = direction_with_neg
     print("Wave direction calculated from x-y components according to nautical convention")
     # %% create the time list for the swan file
@@ -383,7 +384,6 @@ def bcw_file_generator(
             "parameter            'Period'                                   unit '[s]'",
             "parameter            'Direction'                                unit '[N^o]'",
             "parameter            'DirSpreading'                             unit '[deg]'"]
-        # TODO: Check if DirSpreading is actually cosine or directional standard deviation
 
         with open(bcw_file_name, 'a', newline='') as f:
             for one_line in header_lines:

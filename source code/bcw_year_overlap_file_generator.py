@@ -322,7 +322,8 @@ def bcw_year_overlap_file_generator(
                 deg = (math.degrees(rad)) + 270
                 result.append(deg)
 
-        direction_with_neg = result
+        result_corrected = [(direction + 180) % 360 for direction in result]
+        direction_with_neg = result_corrected
         direction_dict[key] = direction_with_neg
 
     print("Wave direction calculated from x-y components according to nautical convention")
