@@ -1672,10 +1672,7 @@ def submit_choice():
             if not bct_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .grd file.")
-            elif selected_step_c == 0:
-                messagebox.showwarning(
-                    "Warning", "Please select type of sea level change.")
-            elif selected_step_c == 1:
+            elif selected_step_c.get() == 1:
                 bct_file_name = bct_entry.get()
                 type_inc = False
                 type_add = 'gradual'
@@ -1687,7 +1684,7 @@ def submit_choice():
                 print(
                     f'sea level change added to water levels, type {type_add}')
 
-            else:
+            elif selected_step_c.get() == 2:
                 bct_file_name = bct_entry.get()
                 type_inc = True
                 type_add = 'constant'
@@ -1698,6 +1695,10 @@ def submit_choice():
 
                 print(
                     f'sea level change added to water levels, type {type_add}')
+
+            else:
+                messagebox.showwarning(
+                    "Warning", "Please select type of sea level change.")
 
         # %% end of main code for choice 1
         frame_submit = tk.Frame(new_window, width=200,

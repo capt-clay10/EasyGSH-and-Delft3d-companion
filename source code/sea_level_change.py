@@ -101,7 +101,7 @@ def add_wl(bct_file, sea_level_change, constant=False):
     file_path = bct_file
     data_lines = data_extract(file_path)
 
-    target_line = "interpolation       'linear'                                                       "
+    target_line = "interpolation"
     total_lines = count_lines(file_path, target_line)
 
     # calculate in which rows the data and the headers start
