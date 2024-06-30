@@ -27,6 +27,9 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
     import numpy as np
     import os
     import csv
+    from tqdm import tqdm
+    from scipy import interpolate
+    from scipy.interpolate import interp1d
 
     # %% input the files
 
@@ -92,6 +95,83 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
         else:
             output_str = input_str
         return output_str
+
+    def fill_zeros_with_interpolation(arr):
+        # Identify the indices of the non-zero elements
+        non_zero_indices = np.where(arr != 0)[0]
+        zero_indices = np.where(arr == 0)[0]
+
+        if non_zero_indices.size == 0:
+            # If there are no non-zero values to interpolate from, return the original array
+            return arr
+
+        # Extract the non-zero elements and their indices
+        non_zero_values = arr[non_zero_indices]
+
+        # Create an interpolation function based on the non-zero elements
+        interp_func = interp1d(non_zero_indices, non_zero_values,
+                               kind='linear', fill_value="extrapolate")
+
+        # Interpolate the zero elements
+        arr[zero_indices] = interp_func(zero_indices)
+
+        return arr
+
+    def fill_nans_with_interpolation(data_array):
+        """Interpolate to fill NaNs in the time series data"""
+        filled_data = data_array.copy()
+        filled_data = np.nan_to_num(filled_data)  # Temporarily fill NaNs with 0
+        return fill_zeros_with_interpolation(filled_data)
+
+    def bilinear_interpolation(lat, lon, ds, variable):
+        lat_vals = ds.coords['lat'].values
+        lon_vals = ds.coords['lon'].values
+
+        lat_idx1 = np.searchsorted(lat_vals, lat) - 1
+        lat_idx2 = lat_idx1 + 1
+        lon_idx1 = np.searchsorted(lon_vals, lon) - 1
+        lon_idx2 = lon_idx1 + 1
+
+        lat_idx1 = np.clip(lat_idx1, 0, len(lat_vals) - 1)
+        lat_idx2 = np.clip(lat_idx2, 0, len(lat_vals) - 1)
+        lon_idx1 = np.clip(lon_idx1, 0, len(lon_vals) - 1)
+        lon_idx2 = np.clip(lon_idx2, 0, len(lon_vals) - 1)
+
+        lat1, lat2 = lat_vals[lat_idx1], lat_vals[lat_idx2]
+        lon1, lon2 = lon_vals[lon_idx1], lon_vals[lon_idx2]
+
+        Q11 = ds.sel(lat=lat1, lon=lon1)[variable].values
+
+        Q12 = ds.sel(lat=lat1, lon=lon2)[variable].values
+        Q21 = ds.sel(lat=lat2, lon=lon1)[variable].values
+        Q22 = ds.sel(lat=lat2, lon=lon2)[variable].values
+
+        # Check 1: Replace NaNs with 0 and interpolate
+        if np.isnan(Q11).any():
+            Q11 = fill_nans_with_interpolation(Q11)
+        if np.isnan(Q12).any():
+            Q12 = fill_nans_with_interpolation(Q12)
+        if np.isnan(Q21).any():
+            Q21 = fill_nans_with_interpolation(Q21)
+        if np.isnan(Q22).any():
+            Q22 = fill_nans_with_interpolation(Q22)
+
+        values = [
+            (Q11, (lat2 - lat) * (lon2 - lon)),
+            (Q21, (lat - lat1) * (lon2 - lon)),
+            (Q12, (lat2 - lat) * (lon - lon1)),
+            (Q22, (lat - lat1) * (lon - lon1))
+        ]
+
+        if values:
+            # Calculate the weighted sum
+            interp_value = sum(val * weight for val, weight in values) / \
+                sum(weight for _, weight in values)
+        else:
+            # All values are NaN, handle accordingly
+            interp_value = np.nan  # or set to a default value, e.g., 0
+
+        return interp_value
 
     print(".")
     # %% Extract information from mdf file
@@ -180,7 +260,7 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
 
     # Convert datetime object to string in specific format
     end_time = end_time .strftime("%Y-%m-%d %H:%M:%S")
-    print("Time lag for flow bct corrected")
+    print(".")
 
     # %% Configuring time step to adhere to the coupling interval
     one_time_step = step
@@ -202,13 +282,13 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
     dataset = data_1.sel(nMesh2_data_time=slice(
         start_time, end_data_1, time_step_data))
 
-    wl_1 = dataset['Mesh2_face_Wasserstand_2d']
+    # wl_1 = dataset['Mesh2_face_Wasserstand_2d']
 
     data_2 = xr.open_dataset(nc_file_year2)
     dataset_2 = data_2.sel(nMesh2_data_time=slice(
         end_data_1, end_time, time_step_data))
 
-    wl_2 = dataset_2['Mesh2_face_Wasserstand_2d']
+    # wl_2 = dataset_2['Mesh2_face_Wasserstand_2d']
 
     print(".")
     # %% Convert to geographic coordinates
@@ -242,31 +322,33 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
     output_dict = {}
     output_dict_2 = {}
 
-    for index, row in bnd_loc_geo.iterrows():
+    for index, row in tqdm(bnd_loc_geo.iterrows(), desc='Extracting water level', total=len(bnd_loc_geo), leave=True, mininterval=0.1):
 
-        wl_1_sel = wl_1.sel(lon=row['lon'], lat=row['lat'], method="nearest")
-        water_level_1 = wl_1_sel.to_numpy()  # convert to sci_not?
+        # wl_1_sel = wl_1.sel(lon=row['lon'], lat=row['lat'], method="nearest")
+        water_level_1 = bilinear_interpolation(
+            row['lat'], row['lon'], dataset, variable='Mesh2_face_Wasserstand_2d')
 
-        wl_2_sel = wl_2.sel(lon=row['lon'], lat=row['lat'], method="nearest")
-        water_level_2 = wl_2_sel.to_numpy()
+        # wl_2_sel = wl_2.sel(lon=row['lon'], lat=row['lat'], method="nearest")
+        water_level_2 = bilinear_interpolation(
+            row['lat'], row['lon'], dataset_2, variable='Mesh2_face_Wasserstand_2d')
 
         wl_combined = np.concatenate([water_level_1, water_level_2])
 
-        bnd_name = bnd_loc_geo.iloc[index, 2]
+        # bnd_name = bnd_loc_geo.iloc[index, 2]
 
-        nan = 0
-        for j in wl_combined:
+        # nan = 0
+        # for j in wl_combined:
 
-            if np.isnan(j):
-                nan += 1
-            elif not np.isnan(j):
-                nan = nan
+        #     if np.isnan(j):
+        #         nan += 1
+        #     elif not np.isnan(j):
+        #         nan = nan
 
-        if nan > 2 and bnd_name[-1] != 'b':
-            print(
-                f'Nan value present in {bnd_name[0:-2]} {nan} times in {wl_1_sel.attrs["long_name"][0:-9]}')
-        mean = np.nanmean(wl_combined)
-        wl_combined = np.nan_to_num(wl_combined, nan=mean)
+        # if nan > 2 and bnd_name[-1] != 'b':
+        #     print(
+        #         f'Nan value present in {bnd_name[0:-2]} {nan} times in {wl_1_sel.attrs["long_name"][0:-9]}')
+        # mean = np.nanmean(wl_combined)
+        # wl_combined = np.nan_to_num(wl_combined, nan=mean)
         output_dict[row['boundaries']] = wl_combined
 
     for bnd_point_key, bnd_point_wl_list in output_dict.items():
@@ -298,10 +380,10 @@ def bct_year_overlap_file_generator(boundaries, nc_file_year1, nc_file_year2, md
         os.remove(bct_file_name)
     except FileNotFoundError:
         pass
-
+    section_number = 1
     for key in output_dict_2:
         bn_name = str(key)
-        header_lines = ["table-name           'Boundary Section : 1'",
+        header_lines = ["table-name           'Boundary Section : {}'".format(section_number),
                         "contents             'Uniform             '",
                         "location             '{}              '".format(
                             bn_name),

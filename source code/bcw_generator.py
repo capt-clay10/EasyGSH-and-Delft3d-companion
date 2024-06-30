@@ -9,10 +9,15 @@ def bcw_file_generator(
     # %% Import packages
     import pandas as pd
     import numpy as np
+    from datetime import timedelta
+    from datetime import datetime
     import os
     import csv
     import math
     import statistics as st
+    from tqdm import tqdm
+    from scipy import interpolate
+    from scipy.interpolate import interp1d
 
     try:
         import utm
@@ -77,76 +82,100 @@ def bcw_file_generator(
 
         return output_str
 
-    def extract_data_for_loc(dataset, dataframe_loc, output_dict):
-        for index, row in dataframe_loc.iterrows():
-            dataset_sel = dataset.sel(
-                lon=row['lon'], lat=row['lat'], method="nearest")
-            dataset_2 = dataset_sel.to_numpy()  # convert to numpy array
-            bnd_name = bnd_loc_geo.iloc[index, 2]
-            nan = 0
-            for j in dataset_2:
+    def fill_zeros_with_interpolation(arr):
+        # Identify the indices of the non-zero elements
+        non_zero_indices = np.where(arr != 0)[0]
+        zero_indices = np.where(arr == 0)[0]
 
-                if np.isnan(j):
-                    nan += 1
-                elif not np.isnan(j):
-                    nan = nan
+        if non_zero_indices.size == 0:
+            # If there are no non-zero values to interpolate from, return the original array
+            return arr
 
-            if nan > 2 and bnd_name[-1] != 'b':
-                print(
-                    f'Nan value present in {bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
-            mean = np.nanmean(dataset_2)
-            dataset_3 = np.nan_to_num(dataset_2, nan=mean)
-            output_dict[row['boundaries']].append(dataset_3)
+        # Extract the non-zero elements and their indices
+        non_zero_values = arr[non_zero_indices]
 
-    def extract_dir_data_for_loc(dataset, dataframe_loc, output_dict):
-        for index, row in dataframe_loc.iterrows():
-            bnd_name = bnd_loc_geo.iloc[index, 2]
-            dataset_sel = dataset.sel(
-                lon=row['lon'], lat=row['lat'], method="nearest")
-            dataset_2 = dataset_sel.to_numpy()
-            # Identify nan values and print them
-            nan = 0
-            for j in dataset_2:
+        # Create an interpolation function based on the non-zero elements
+        interp_func = interp1d(non_zero_indices, non_zero_values,
+                               kind='linear', fill_value="extrapolate")
 
-                if np.isnan(j) or j == - 0.017452405765652657 or j == 0.9998477101325989:
-                    nan += 1
-                elif not np.isnan(j):
-                    nan = nan
+        # Interpolate the zero elements
+        arr[zero_indices] = interp_func(zero_indices)
 
-            if nan > 2 and bnd_name[-1] != 'b':
-                print(
-                    f'Nan value present in '
-                    f'{bnd_name[0:-2]} {nan} times in {dataset.attrs["long_name"][0:-9]}')
+        return arr
 
-            # treating the nan
-            if np.count_nonzero(np.isnan(dataset_2)) == len(dataset_2):
-                to_calculate_1 = dataset_2[~(np.isnan(dataset_2))]
-                replace = np.mean(to_calculate_1)
-            elif np.count_nonzero(np.isnan(dataset_2)) < (len(dataset_2)):
-                to_calculate_1 = dataset_2[~(np.isnan(dataset_2))]
-                replace = st.mode(to_calculate_1)  # Claculate mode
+    def fill_nans_with_interpolation(data_array):
+        """Interpolate to fill NaNs in the time series data"""
+        filled_data = data_array.copy()
+        filled_data = np.nan_to_num(filled_data)  # Temporarily fill NaNs with 0
+        return fill_zeros_with_interpolation(filled_data)
 
-            dataset_2 = np.nan_to_num(dataset_2, nan=replace)
+    def bilinear_interpolation(lat, lon, ds, variable):
+        lat_vals = ds.coords['lat'].values
+        lon_vals = ds.coords['lon'].values
 
-            # Replace not nan but empty numbers with mode of the dataset
-            for i in dataset_2:
-                if i == -0.017452405765652657:
-                    to_calculate = dataset_2[np.where(
-                        dataset_2 != -0.017452405765652657)]
-                    # median = np.median(to_calculate)
-                    mode = st.mode(to_calculate)
-                    # mean_1 = np.mean(dataset_2, where=(dataset_2 != -0.017452405765652657))
-                    dataset_2 = np.where((dataset_2 > -0.01745242) &
-                                         (dataset_2 < -0.01745240), mode, dataset_2)
-                    # output_dict[row['boundaries']].append(dataset_3)  # automise boundary selection
-                elif i == 0.9998477101325989:
-                    to_calculate = dataset_2[np.where(
-                        dataset_2 != 0.9998477101325989)]
-                    # median = np.median(to_calculate)
-                    mode = st.mode(to_calculate)
-                    # mean_1 = np.mean(dataset_2, where=(dataset_2 != 0.9998477101325989))
-                    dataset_2 = np.where((dataset_2 > 0.99984) & (
-                        dataset_2 < 0.99985), mode, dataset_2)
+        lat_idx1 = np.searchsorted(lat_vals, lat) - 1
+        lat_idx2 = lat_idx1 + 1
+        lon_idx1 = np.searchsorted(lon_vals, lon) - 1
+        lon_idx2 = lon_idx1 + 1
+
+        lat_idx1 = np.clip(lat_idx1, 0, len(lat_vals) - 1)
+        lat_idx2 = np.clip(lat_idx2, 0, len(lat_vals) - 1)
+        lon_idx1 = np.clip(lon_idx1, 0, len(lon_vals) - 1)
+        lon_idx2 = np.clip(lon_idx2, 0, len(lon_vals) - 1)
+
+        lat1, lat2 = lat_vals[lat_idx1], lat_vals[lat_idx2]
+        lon1, lon2 = lon_vals[lon_idx1], lon_vals[lon_idx2]
+
+        Q11 = ds.sel(lat=lat1, lon=lon1)[variable].values
+
+        Q12 = ds.sel(lat=lat1, lon=lon2)[variable].values
+        Q21 = ds.sel(lat=lat2, lon=lon1)[variable].values
+        Q22 = ds.sel(lat=lat2, lon=lon2)[variable].values
+
+        # Check 1: Replace NaNs with 0 and interpolate
+        if np.isnan(Q11).any():
+            Q11 = fill_nans_with_interpolation(Q11)
+        if np.isnan(Q12).any():
+            Q12 = fill_nans_with_interpolation(Q12)
+        if np.isnan(Q21).any():
+            Q21 = fill_nans_with_interpolation(Q21)
+        if np.isnan(Q22).any():
+            Q22 = fill_nans_with_interpolation(Q22)
+
+        values = [
+            (Q11, (lat2 - lat) * (lon2 - lon)),
+            (Q21, (lat - lat1) * (lon2 - lon)),
+            (Q12, (lat2 - lat) * (lon - lon1)),
+            (Q22, (lat - lat1) * (lon - lon1))
+        ]
+
+        if values:
+            # Calculate the weighted sum
+            interp_value = sum(val * weight for val, weight in values) / \
+                sum(weight for _, weight in values)
+        else:
+            # All values are NaN, handle accordingly
+            interp_value = np.nan  # or set to a default value, e.g., 0
+
+        return interp_value
+
+    def extract_data_for_loc(dataset, dataframe_loc, output_dict, variable):
+
+        for index, row in tqdm(dataframe_loc.iterrows(), desc=f'Extracting Data: {variable}',
+                               total=len(dataframe_loc), leave=True, mininterval=0.1):
+
+            dataset_2 = bilinear_interpolation(
+                row['lat'], row['lon'], dataset, variable)
+
+            output_dict[row['boundaries']].append(dataset_2)
+
+    def extract_dir_data_for_loc(dataset, dataframe_loc, output_dict, variable):
+
+        for index, row in tqdm(dataframe_loc.iterrows(), desc=f'Extracting Direction: {variable}',
+                               total=len(dataframe_loc), leave=True, mininterval=0.1):
+
+            dataset_2 = bilinear_interpolation(
+                row['lat'], row['lon'], dataset, variable)
 
             output_dict[row['boundaries']].append(
                 dataset_2)  # automise boundary selection
@@ -227,13 +256,13 @@ def bcw_file_generator(
     dataset = data.sel(nMesh2_data_time=slice(
         start_time_lag, end_time_lag, time_step_data))
 
-    sig_height = dataset['Mesh2_face_signifikante_Wellenhoehe_2d']
-    peak_period = dataset['Mesh2_face_Peak_Wellenperiode_2d']
-    dir_spread = dataset['Mesh2_face_Richtungsaufweitung_der_Wellen_2d']
-    wave_dir_x = dataset['Mesh2_face_Wellenrichtungsvektor_x_2d']
-    wave_dir_y = dataset['Mesh2_face_Wellenrichtungsvektor_y_2d']
+    sig_height = 'Mesh2_face_signifikante_Wellenhoehe_2d'
+    peak_period = 'Mesh2_face_Peak_Wellenperiode_2d'
+    dir_spread = 'Mesh2_face_Richtungsaufweitung_der_Wellen_2d'
+    wave_dir_x = 'Mesh2_face_Wellenrichtungsvektor_x_2d'
+    wave_dir_y = 'Mesh2_face_Wellenrichtungsvektor_y_2d'
 
-    print("Time lag for bcw corrected")
+    print(".")
     # %% Convert to geographic coordinates
 
     easting = bnd_loc['easting']
@@ -255,10 +284,11 @@ def bcw_file_generator(
         extracted_x_y_dict[row['boundaries']] = []  # Create keys for the dict
 
     # Extract data and store in the preallocated dict
-    extract_dir_data_for_loc(dataset=wave_dir_x, dataframe_loc=bnd_loc_geo,
-                             output_dict=extracted_x_y_dict)
-    extract_dir_data_for_loc(dataset=wave_dir_y, dataframe_loc=bnd_loc_geo,
-                             output_dict=extracted_x_y_dict)
+    extract_dir_data_for_loc(dataset=dataset, dataframe_loc=bnd_loc_geo,
+                             output_dict=extracted_x_y_dict, variable=wave_dir_x)
+
+    extract_dir_data_for_loc(dataset=dataset, dataframe_loc=bnd_loc_geo,
+                             output_dict=extracted_x_y_dict, variable=wave_dir_y)
 
     # Vectorise single value functions so they can handle arrays.
     tan_inverse = np.vectorize(math.atan2)
@@ -316,14 +346,14 @@ def bcw_file_generator(
         # Create keys for the dict
         extracted_dataset_dict[row['boundaries']] = []
 
-    extract_data_for_loc(dataset=sig_height, dataframe_loc=bnd_loc_geo,
-                         output_dict=extracted_dataset_dict)
+    extract_data_for_loc(dataset=dataset, dataframe_loc=bnd_loc_geo,
+                         output_dict=extracted_dataset_dict, variable=sig_height)
 
-    extract_data_for_loc(dataset=peak_period, dataframe_loc=bnd_loc_geo,
-                         output_dict=extracted_dataset_dict)
+    extract_data_for_loc(dataset=dataset, dataframe_loc=bnd_loc_geo,
+                         output_dict=extracted_dataset_dict, variable=peak_period)
 
-    extract_data_for_loc(dataset=dir_spread, dataframe_loc=bnd_loc_geo,
-                         output_dict=extracted_dataset_dict)
+    extract_data_for_loc(dataset=dataset, dataframe_loc=bnd_loc_geo,
+                         output_dict=extracted_dataset_dict, variable=dir_spread)
     print("Wave parameter datasets extracted")
     # %% delete the b values from the dictionary
 

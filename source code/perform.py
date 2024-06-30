@@ -11,16 +11,16 @@ import time
 import bct_generator
 import os
 
-path = 'F:/test'
-os.chdir(path)
+# path = 'F:/test'
+# os.chdir(path)
 
-boundaries = 'midres.csv'
-nc_file = '2015_1000m_waterlevel_2D.nc'
-mdf_file = 'midres.mdf'
-start_time = '2015-02-01 00:00:00'
-end_time = '2015-02-28 00:00:00'
-step = 20
-bct_file_name = 'midres.bct'
+# boundaries = 'midres.csv'
+# nc_file = '2015_1000m_waterlevel_2D.nc'
+# mdf_file = 'midres.mdf'
+# start_time = '2015-02-01 00:00:00'
+# end_time = '2015-02-28 00:00:00'
+# step = 20
+# bct_file_name = 'midres.bct'
 
 
 # bct_generator.bct_file_generator(
