@@ -19,10 +19,15 @@ Please read the source document to understand how these datasets are generated, 
 * sys 
 * time 
 * utm 
-* xarray 
+* xarray
+* ast
+* tdm
+* scipy
+* math
 
 # UPDATES
 * New Standalone GUI added for Windows (EasyD3d.exe)
+* Identify representative period according to Soares et al. (2024, pending)
 * Add desired sea level rise to extracted water level time series (.bct files)
 * The script can extract boundary conditions for overlapping years. ( for example: when your simulation runs over 2003 December to 2004- January)
 * The script now also writes an mdw file with extracted xy boundary coordinates.
@@ -34,7 +39,7 @@ Please read the source document to understand how these datasets are generated, 
 
 * Adding variability in wave parameters for climate change scenarios. 
 * Adding integration with COSMO wind field files.
-* Better handling NaN values ( currently the nan values are replaced by mode values)
+
 
 ### Two choices are presented, you can run the <ins>main.py</ins> script in your Python environment to extract your files or use the standalone GUI <ins>EasyD3d.exe</ins>, alternatively, the gui.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the <ins>gui.py</ins> to the executable GUI EasyD3d. 
 
