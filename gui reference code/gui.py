@@ -25,12 +25,24 @@ import bcw_generator
 import bcw_year_overlap_file_generator
 import mdw_writer
 import sea_level_change
+import rep_period
+import ast
 
 
 def browse_path():
     folder_selected = filedialog.askdirectory()
     path_entry.delete(0, tk.END)
     path_entry.insert(0, folder_selected)
+
+
+def toggle_fullscreen(event=None):
+    is_fullscreen = not new_window.attributes("-fullscreen")
+    new_window.attributes("-fullscreen", is_fullscreen)
+
+
+def end_fullscreen(event=None):
+    new_window.attributes("-fullscreen", False)
+
 
 # %% the actual code
 
@@ -51,7 +63,11 @@ def submit_choice():
         new_window.title("Generate all files")
         new_window.geometry('800x1000')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -66,40 +82,40 @@ def submit_choice():
         frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
         frameup.pack(side='left', fill='both', expand=True, padx=10)
         left_label = tk.Label(frameup, text="Flow Module",
-                              font=("Helvetica", 16))
+                              font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
 
         framedown = tk.Frame(main_frame, width=250,
                              borderwidth=1, relief='solid')
         framedown.pack(side='right', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Wave Module", font=("Helvetica", 16))
+            framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons mdf
         mdf_label = tk.Label(frameup, text="MDF file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdf_entry = tk.Entry(frameup, width=50)
         mdf_entry.pack()
         mdf_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(mdf_entry)).pack(pady=20)
 
         grd_label = tk.Label(frameup, text=".grd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         grd_entry = tk.Entry(frameup, width=50)
         grd_entry.pack()
         grd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(grd_entry)).pack(pady=20)
 
         bnd_label = tk.Label(frameup, text=".bnd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         bnd_entry = tk.Entry(frameup, width=50)
         bnd_entry.pack()
         bnd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(bnd_entry)).pack(pady=20)
 
         nc_label = tk.Label(
-            frameup, text=".nc waterlevel file (EasyGSH):", font='Helvetica').pack(pady=5)
+            frameup, text=".nc waterlevel file (EasyGSH):", font='Times').pack(pady=5)
         nc_entry = tk.Entry(frameup, width=50)
         nc_entry.pack()
         nc_button = tk.Button(frameup, text="Browse",
@@ -113,7 +129,7 @@ def submit_choice():
             "80 mins"]
 
         stepf_label = tk.Label(
-            frameup, text="Time step for waterlevel extraction:", font='Helvetica').pack(pady=5)
+            frameup, text="Time step for waterlevel extraction:", font='Times').pack(pady=5)
 
         selected_step_f = tk.IntVar()
 
@@ -124,35 +140,35 @@ def submit_choice():
 
         # % input buttons mdw
         mdw_label = tk.Label(framedown, text="MDW file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdw_entry = tk.Entry(framedown, width=50)
         mdw_entry.pack()
         mdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(mdw_entry)).pack(pady=20)
 
         grdw_label = tk.Label(
-            framedown, text=".grd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".grd file (wave):", font='Times').pack(pady=5)
         grdw_entry = tk.Entry(framedown, width=50)
         grdw_entry.pack()
         grdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(grdw_entry)).pack(pady=20)
 
         bndw_label = tk.Label(
-            framedown, text=".bnd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".bnd file (wave):", font='Times').pack(pady=5)
         bndw_entry = tk.Entry(framedown, width=50)
         bndw_entry.pack()
         bndw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(bndw_entry)).pack(pady=20)
 
         ncw_label = tk.Label(
-            framedown, text=".nc wave file (EasyGSH):", font='Helvetica').pack(pady=5)
+            framedown, text=".nc wave file (EasyGSH):", font='Times').pack(pady=5)
         ncw_entry = tk.Entry(framedown, width=50)
         ncw_entry.pack()
         ncw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(ncw_entry)).pack(pady=20)
 
         stepw_label = tk.Label(
-            framedown, text="Time step for wave extraction:", font='Helvetica').pack(pady=5)
+            framedown, text="Time step for wave extraction:", font='Times').pack(pady=5)
 
         step_types_w = [
             "20 mins",
@@ -193,6 +209,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -402,14 +419,14 @@ def submit_choice():
                 print(
                     f'Total time taken for both files is {elapsed_final/60} mins')
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 2:  # bct nly
@@ -419,7 +436,11 @@ def submit_choice():
         new_window.title("Bct file generator")
         # new_window.geometry('800x950')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -434,33 +455,33 @@ def submit_choice():
         frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
         frameup.pack(side='left', fill='both', expand=True, padx=10)
         left_label = tk.Label(frameup, text="Flow Module",
-                              font=("Helvetica", 16))
+                              font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons mdf
         mdf_label = tk.Label(frameup, text="MDF file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdf_entry = tk.Entry(frameup, width=50)
         mdf_entry.pack()
         mdf_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(mdf_entry)).pack(pady=20)
 
         grd_label = tk.Label(frameup, text=".grd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         grd_entry = tk.Entry(frameup, width=50)
         grd_entry.pack()
         grd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(grd_entry)).pack(pady=20)
 
         bnd_label = tk.Label(frameup, text=".bnd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         bnd_entry = tk.Entry(frameup, width=50)
         bnd_entry.pack()
         bnd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(bnd_entry)).pack(pady=20)
 
         nc_label = tk.Label(
-            frameup, text=".nc waterlevel file (EasyGSH):", font='Helvetica').pack(pady=5)
+            frameup, text=".nc waterlevel file (EasyGSH):", font='Times').pack(pady=5)
         nc_entry = tk.Entry(frameup, width=50)
         nc_entry.pack()
         nc_button = tk.Button(frameup, text="Browse",
@@ -474,7 +495,7 @@ def submit_choice():
             "80 mins"]
 
         stepf_label = tk.Label(
-            frameup, text="Time step for waterlevel extraction:", font='Helvetica').pack(pady=5)
+            frameup, text="Time step for waterlevel extraction:", font='Times').pack(pady=5)
 
         selected_step_f = tk.IntVar()
 
@@ -507,6 +528,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -598,14 +620,14 @@ def submit_choice():
                 elapsed = time.time() - t
                 print(str(elapsed) + " sec - 3 of 3")
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 3:  # bct only over two years
@@ -613,9 +635,13 @@ def submit_choice():
 
         new_window = tk.Toplevel(root)
         new_window.title("Generate Bct file overlapping over two years")
-        # new_window.geometry('800x950')
+        # new_window.geometry('800x1200')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -627,43 +653,43 @@ def submit_choice():
         main_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
         # % frame 1
-        frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
+        frameup = tk.Frame(main_frame, width=200, borderwidth=1, relief='solid')
         frameup.pack(side='left', fill='both', expand=True, padx=10)
         left_label = tk.Label(frameup, text="Flow Module",
-                              font=("Helvetica", 16))
+                              font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons mdf
         mdf_label = tk.Label(frameup, text="MDF file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdf_entry = tk.Entry(frameup, width=50)
         mdf_entry.pack()
         mdf_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(mdf_entry)).pack(pady=20)
 
         grd_label = tk.Label(frameup, text=".grd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         grd_entry = tk.Entry(frameup, width=50)
         grd_entry.pack()
         grd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(grd_entry)).pack(pady=20)
 
         bnd_label = tk.Label(frameup, text=".bnd file (flow):",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         bnd_entry = tk.Entry(frameup, width=50)
         bnd_entry.pack()
         bnd_button = tk.Button(
             frameup, text="Browse", command=lambda: browse_file(bnd_entry)).pack(pady=20)
 
         nc_label = tk.Label(
-            frameup, text=".nc waterlevel file (EasyGSH):", font='Helvetica').pack(pady=5)
+            frameup, text=".nc waterlevel file (EasyGSH):", font='Times').pack(pady=5)
         nc_entry = tk.Entry(frameup, width=50)
         nc_entry.pack()
         nc_button = tk.Button(frameup, text="Browse",
                               command=lambda: browse_file(nc_entry)).pack(pady=20)
 
         nc_label_2 = tk.Label(
-            frameup, text=".nc waterlevel file- part 2 (EasyGSH):", font='Helvetica').pack(pady=5)
+            frameup, text=".nc waterlevel file- part 2 (EasyGSH):", font='Times').pack(pady=5)
         nc_entry_2 = tk.Entry(frameup, width=50)
         nc_entry_2.pack()
         nc_button_2 = tk.Button(frameup, text="Browse",
@@ -677,7 +703,7 @@ def submit_choice():
             "80 mins"]
 
         stepf_label = tk.Label(
-            frameup, text="Time step for waterlevel extraction:", font='Helvetica').pack(pady=5)
+            frameup, text="Time step for waterlevel extraction:", font='Times').pack(pady=5)
 
         selected_step_f = tk.IntVar()
 
@@ -710,6 +736,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -806,14 +833,14 @@ def submit_choice():
                 elapsed = time.time() - t
                 print(str(elapsed) + " sec - 3 of 3")
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 4:  # bcw only
@@ -821,9 +848,13 @@ def submit_choice():
 
         new_window = tk.Toplevel(root)
         new_window.title("Bcw file generator")
-        new_window.geometry('800x1250')
+        # new_window.geometry('800x1000')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -838,33 +869,33 @@ def submit_choice():
                              borderwidth=1, relief='solid')
         framedown.pack(side='top', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Wave Module", font=("Helvetica", 16))
+            framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons mdw
         mdw_label = tk.Label(framedown, text="MDW file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdw_entry = tk.Entry(framedown, width=50)
         mdw_entry.pack()
         mdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(mdw_entry)).pack(pady=20)
 
         grdw_label = tk.Label(
-            framedown, text=".grd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".grd file (wave):", font='Times').pack(pady=5)
         grdw_entry = tk.Entry(framedown, width=50)
         grdw_entry.pack()
         grdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(grdw_entry)).pack(pady=20)
 
         bndw_label = tk.Label(
-            framedown, text=".bnd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".bnd file (wave):", font='Times').pack(pady=5)
         bndw_entry = tk.Entry(framedown, width=50)
         bndw_entry.pack()
         bndw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(bndw_entry)).pack(pady=20)
 
         ncw_label = tk.Label(
-            framedown, text=".nc wave file (EasyGSH):", font='Helvetica').pack(pady=5)
+            framedown, text=".nc wave file (EasyGSH):", font='Times').pack(pady=5)
         ncw_entry = tk.Entry(framedown, width=50)
         ncw_entry.pack()
         ncw_button = tk.Button(
@@ -875,7 +906,7 @@ def submit_choice():
         frameright.pack(fill='both', expand=True, padx=10)
 
         stepw_label = tk.Label(
-            frameright, text="Time step for wave extraction:", font='Helvetica').pack(pady=5)
+            frameright, text="Time step for wave extraction:", font='Times').pack(pady=5)
 
         step_types_w = [
             "20 mins",
@@ -900,7 +931,7 @@ def submit_choice():
         framedate.pack(anchor='s', fill='both', expand=True, padx=10)
 
         frame_date_label = tk.Label(
-            framedate, text="Start date", font=("Helvetica", 16))
+            framedate, text="Start date", font=("Times", 16))
         frame_date_label.pack(side='top', padx=10, pady=10)
 
         framedate_end = tk.Frame(main_frame, width=250,
@@ -908,18 +939,18 @@ def submit_choice():
         framedate_end.pack(anchor='s', fill='both', expand=True, padx=10)
 
         frame_date_end_label = tk.Label(
-            framedate_end, text="End date", font=("Helvetica", 16))
+            framedate_end, text="End date", font=("Times", 16))
         frame_date_end_label.pack(side='top', padx=10, pady=10)
 
         # start date
         s_date_label = tk.Label(
-            framedate, text="start date of simulation (YYYY-mm-dd HH:MM:SS):", font='Helvetica').pack(pady=5)
+            framedate, text="start date of simulation (YYYY-mm-dd HH:MM:SS):", font='Times').pack(pady=5)
         s_date_entry = tk.Entry(framedate, width=50)
         s_date_entry.pack(pady=5)
 
         # end date
         e_date_label = tk.Label(
-            framedate_end, text="end date of simulation (YYYY-mm-dd HH:MM:SS):", font='Helvetica').pack(pady=5)
+            framedate_end, text="end date of simulation (YYYY-mm-dd HH:MM:SS):", font='Times').pack(pady=5)
         e_date_entry = tk.Entry(framedate_end, width=50)
         e_date_entry.pack(pady=5)
 
@@ -947,6 +978,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -1063,14 +1095,14 @@ def submit_choice():
                     mdw_file=mdw_file, boundaries_wave=boundaries_wave)
                 print('New mdw file created')
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 5:  # bcw over two years
@@ -1078,9 +1110,13 @@ def submit_choice():
 
         new_window = tk.Toplevel(root)
         new_window.title("Generate Bcw file overlapping over two years")
-        new_window.geometry('800x1500')
+        # new_window.geometry('800x1500')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -1095,40 +1131,40 @@ def submit_choice():
                              borderwidth=1, relief='solid')
         framedown.pack(side='top', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Wave Module", font=("Helvetica", 16))
+            framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons mdw
         mdw_label = tk.Label(framedown, text="MDW file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdw_entry = tk.Entry(framedown, width=50)
         mdw_entry.pack()
         mdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(mdw_entry)).pack(pady=20)
 
         grdw_label = tk.Label(
-            framedown, text=".grd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".grd file (wave):", font='Times').pack(pady=5)
         grdw_entry = tk.Entry(framedown, width=50)
         grdw_entry.pack()
         grdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(grdw_entry)).pack(pady=20)
 
         bndw_label = tk.Label(
-            framedown, text=".bnd file (wave):", font='Helvetica').pack(pady=5)
+            framedown, text=".bnd file (wave):", font='Times').pack(pady=5)
         bndw_entry = tk.Entry(framedown, width=50)
         bndw_entry.pack()
         bndw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(bndw_entry)).pack(pady=20)
 
         ncw_label = tk.Label(
-            framedown, text=".nc wave file (EasyGSH):", font='Helvetica').pack(pady=5)
+            framedown, text=".nc wave file (EasyGSH):", font='Times').pack(pady=5)
         ncw_entry = tk.Entry(framedown, width=50)
         ncw_entry.pack()
         ncw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(ncw_entry)).pack(pady=20)
 
         ncw2_label = tk.Label(
-            framedown, text=".nc wave file part 2 (EasyGSH):", font='Helvetica').pack(pady=5)
+            framedown, text=".nc wave file part 2 (EasyGSH):", font='Times').pack(pady=5)
         ncw2_entry = tk.Entry(framedown, width=50)
         ncw2_entry.pack()
         ncw2_button = tk.Button(
@@ -1139,7 +1175,7 @@ def submit_choice():
         frameright.pack(fill='both', expand=True, padx=10)
 
         stepw_label = tk.Label(
-            frameright, text="Time step for wave extraction:", font='Helvetica').pack(pady=5)
+            frameright, text="Time step for wave extraction:", font='Times').pack(pady=5)
 
         step_types_w = [
             "20 mins",
@@ -1164,7 +1200,7 @@ def submit_choice():
         framedate.pack(anchor='s', fill='both', expand=True, padx=10)
 
         frame_date_label = tk.Label(
-            framedate, text="Start date", font=("Helvetica", 16))
+            framedate, text="Start date", font=("Times", 16))
         frame_date_label.pack(side='top', padx=10, pady=10)
 
         framedate_end = tk.Frame(main_frame, width=250,
@@ -1172,18 +1208,18 @@ def submit_choice():
         framedate_end.pack(anchor='s', fill='both', expand=True, padx=10)
 
         frame_date_end_label = tk.Label(
-            framedate_end, text="End date", font=("Helvetica", 16))
+            framedate_end, text="End date", font=("Times", 16))
         frame_date_end_label.pack(side='top', padx=10, pady=10)
 
         # start date
         s_date_label = tk.Label(
-            framedate, text="start date of simulation (YYYY-mm-dd HH:MM:SS):", font='Helvetica').pack(pady=5)
+            framedate, text="start date of simulation (YYYY-mm-dd HH:MM:SS):", font='Times').pack(pady=5)
         s_date_entry = tk.Entry(framedate, width=50)
         s_date_entry.pack(pady=5)
 
         # end date
         e_date_label = tk.Label(
-            framedate_end, text="end date of simulation (YYYY-mm-dd HH:MM:SS):", font='Helvetica').pack(pady=5)
+            framedate_end, text="end date of simulation (YYYY-mm-dd HH:MM:SS):", font='Times').pack(pady=5)
         e_date_entry = tk.Entry(framedate_end, width=50)
         e_date_entry.pack(pady=5)
 
@@ -1211,6 +1247,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -1331,14 +1368,14 @@ def submit_choice():
                     mdw_file=mdw_file, boundaries_wave=boundaries_wave)
                 print('New mdw file created')
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 6:  # boundary conditions file
@@ -1348,7 +1385,11 @@ def submit_choice():
         new_window.title("Boundary location file (csv) Generator")
         new_window.geometry('800x600')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -1363,20 +1404,20 @@ def submit_choice():
                              borderwidth=1, relief='solid')
         framedown.pack(side='top', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Wave/Flow module", font=("Helvetica", 16))
+            framedown, text="Wave/Flow module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons
 
         grdw_label = tk.Label(
-            framedown, text=".grd file:", font='Helvetica').pack(pady=5)
+            framedown, text=".grd file:", font='Times').pack(pady=5)
         grdw_entry = tk.Entry(framedown, width=50)
         grdw_entry.pack()
         grdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(grdw_entry)).pack(pady=20)
 
         bndw_label = tk.Label(
-            framedown, text=".bnd file:", font='Helvetica').pack(pady=5)
+            framedown, text=".bnd file:", font='Times').pack(pady=5)
         bndw_entry = tk.Entry(framedown, width=50)
         bndw_entry.pack()
         bndw_button = tk.Button(
@@ -1406,6 +1447,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -1447,14 +1489,14 @@ def submit_choice():
                 print('The process of creating',
                       ' the boundary location csv file is completed - 2 of 2')
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 7:  # boundary conditions file and mdw file
@@ -1464,7 +1506,11 @@ def submit_choice():
         new_window.title("Boundary location and mdw file generator")
         new_window.geometry('800x600')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -1479,27 +1525,27 @@ def submit_choice():
                              borderwidth=1, relief='solid')
         framedown.pack(side='top', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Wave Module", font=("Helvetica", 16))
+            framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         # % input buttons
 
         grdw_label = tk.Label(
-            framedown, text=".grd file:", font='Helvetica').pack(pady=5)
+            framedown, text=".grd file:", font='Times').pack(pady=5)
         grdw_entry = tk.Entry(framedown, width=50)
         grdw_entry.pack()
         grdw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(grdw_entry)).pack(pady=20)
 
         bndw_label = tk.Label(
-            framedown, text=".bnd file:", font='Helvetica').pack(pady=5)
+            framedown, text=".bnd file:", font='Times').pack(pady=5)
         bndw_entry = tk.Entry(framedown, width=50)
         bndw_entry.pack()
         bndw_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(bndw_entry)).pack(pady=20)
 
         mdw_label = tk.Label(framedown, text="MDW file:",
-                             font='Helvetica').pack(pady=5)
+                             font='Times').pack(pady=5)
         mdw_entry = tk.Entry(framedown, width=50)
         mdw_entry.pack()
         mdw_button = tk.Button(
@@ -1529,6 +1575,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -1580,14 +1627,14 @@ def submit_choice():
                     mdw_file=mdw_file, boundaries_wave=boundaries_wave)
                 print('New mdw file created')
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit)
+            frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     elif selected_choice == 8:  # Add sea level changes to bct file
@@ -1597,7 +1644,11 @@ def submit_choice():
         new_window.title("Add sea level to .bct file")
         new_window.geometry('800x600')
         new_window.grab_set()
-        new_window.resizable(0, 0)
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
 
         # Function to browse for files
         def browse_file(entry_widget):
@@ -1612,11 +1663,11 @@ def submit_choice():
                              borderwidth=1, relief='solid')
         framedown.pack(side='top', fill='both', expand=True, padx=10)
         right_label = tk.Label(
-            framedown, text="Flow Module", font=("Helvetica", 16))
+            framedown, text="Flow Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
 
         bct_label = tk.Label(
-            framedown, text=".bct file:", font='Helvetica').pack(pady=5)
+            framedown, text=".bct file:", font='Times').pack(pady=5)
         bct_entry = tk.Entry(framedown, width=50)
         bct_entry.pack()
         bct_button = tk.Button(
@@ -1636,7 +1687,7 @@ def submit_choice():
 
         # amount of change
         change_label = tk.Label(
-            framedown, text="Amount of sea level rise (m):", font='Helvetica').pack(pady=5)
+            framedown, text="Amount of sea level rise (m):", font='Times').pack(pady=5)
         change_entry = tk.Entry(framedown, width=50)
         change_entry.pack(pady=5)
 
@@ -1664,6 +1715,7 @@ def submit_choice():
         # Create an instance of ConsoleRedirector and redirect sys.stdout
         console_redirector = ConsoleRedirector(console_output)
         sys.stdout = console_redirector
+        sys.stderr = console_redirector
 
         # submit to start extracting
 
@@ -1671,7 +1723,7 @@ def submit_choice():
 
             if not bct_entry.get():
                 messagebox.showwarning(
-                    "Warning", "Please browse for the .grd file.")
+                    "Warning", "Please browse for the .bct file.")
             elif selected_step_c.get() == 1:
                 bct_file_name = bct_entry.get()
                 type_inc = False
@@ -1700,35 +1752,212 @@ def submit_choice():
                 messagebox.showwarning(
                     "Warning", "Please select type of sea level change.")
 
-        # %% end of main code for choice 1
+        # SUbmit code for execution
         frame_submit = tk.Frame(new_window, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
         # Submit button
         submit_button = tk.Button(
-            frame_submit, text="Extract Boundary conditions", command=check_submit_bct)
+            frame_submit, text="Add sea level", command=check_submit_bct, width=20)
         submit_button.pack(pady=10, anchor='s')
 
+    elif selected_choice == 9:  # Identify representative period
+        t = time.time()  # start the time counter
 
+        new_window = tk.Toplevel(root)
+        new_window.title("Identify representative period")
+        new_window.geometry('1500x1000')
+        new_window.grab_set()
+        new_window.resizable(1, 0)
+        # Bind the F11 key to toggle full screen for the internal window
+        new_window.bind("<F11>", toggle_fullscreen)
+        # Bind the Escape key to exit full screen for the internal window
+        new_window.bind("<Escape>", end_fullscreen)
+
+        # Function to browse for files
+        def browse_file(entry_widget):
+            file_path = filedialog.askopenfilename()
+            entry_widget.delete(0, "end")
+            entry_widget.insert(0, file_path)
+
+        main_frame = tk.Frame(new_window)
+        main_frame.pack(fill='both', expand=True, padx=6, pady=6)
+
+        # Left frame
+        framedown = tk.Frame(main_frame, width=200,
+                             borderwidth=1, relief='solid')
+        framedown.pack(side='left', fill='both', expand=True, padx=10)
+        left_label = tk.Label(
+            framedown, text="Representative period", font=("Times", 16))
+        left_label.pack(side='top', padx=10, pady=10)
+
+        # right frame
+        frameup = tk.Frame(main_frame, width=200,
+                           borderwidth=1, relief='solid')
+        frameup.pack(side='right', fill='both', expand=True, padx=10)
+
+        bct_label = tk.Label(
+            framedown, text="WIND file: \n\nImportant note, the file should have only 3 columns, in the following order date, speed, dir \nImportant note, the file should be comma separated (,)", font='Times').pack(pady=5)
+        bct_entry = tk.Entry(framedown, width=50)
+        bct_entry.pack()
+        bct_button = tk.Button(
+            framedown, text="Browse", command=lambda: browse_file(bct_entry)).pack(pady=20)
+
+        text = "In the next step you need to provide a list of relevant parameters for how to prescribe them:\n\nDirectional orientations can be prescribed in a list form as\n\n['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE','SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']\n\nSpeed classes can be prescribed as\n\n  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]\n\nPeriod frequency can be prescribed as\n\n   ['2MS', '3MS', '4MS', '5MS', '6MS']\n\n"
+
+        # Create a label with the provided text and place it inside the frame
+        permanent_text_label = tk.Label(
+            framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14))
+        permanent_text_label.pack()
+
+        # quad selection
+        quad_label = tk.Label(
+            framedown, text="Provide choice list of directional orientations of relavance as mentioned above :  ", font=('Times', 14)).pack(pady=5)
+        quad_entry = tk.Entry(framedown, width=50)
+        quad_entry.pack(pady=5)
+
+        # spd selection
+        spd_label = tk.Label(
+            framedown, text="Provide choice list of speed classes of relavance as mentioned above :  ", font=('Times', 14)).pack(pady=5)
+        spd_entry = tk.Entry(framedown, width=50)
+        spd_entry.pack(pady=5)
+
+        # frequency selection
+        frq_label = tk.Label(
+            framedown, text="Provide choice period frequency of relavance as mentioned above :  ", font=('Times', 14)).pack(pady=5)
+        frq_entry = tk.Entry(framedown, width=50)
+        frq_entry.pack(pady=5)
+
+        # RIght side window inputs
+        text = "\n\n\n\nPlease now provide information about the total reference period\n\n"
+
+        # Create a label with the provided text and place it inside the frame
+        permanent_text_label = tk.Label(
+            frameup, text=text, justify=tk.LEFT, wraplength=400, font=('Arial', 14)).pack()
+
+        # Total start time selection
+        t_start_label = tk.Label(
+            frameup, text="Insert start time of total period eg  : 1975-01-01 00:00:00  ", font=('Times', 14)).pack()
+        t_start_entry = tk.Entry(frameup, width=50)
+        t_start_entry.pack(pady=5)
+
+        # Total start time selection
+        t_end_label = tk.Label(
+            frameup, text="Insert end time of total period eg  : 2019-12-31 00:00:00  ", font=('Times', 14)).pack()
+        t_end_entry = tk.Entry(frameup, width=50)
+        t_end_entry.pack(pady=5)
+
+        text = "\n\n\nPlease now provide information about the compare periods\n\n"
+
+        # Create a label with the provided text and place it inside the frame
+        permanent_text_label = tk.Label(
+            frameup, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14)).pack()
+
+        # Total start time selection
+        start_label = tk.Label(
+            frameup, text="Insert start time of scanning window period eg  : 1996-01-01 00:00:00  ", font=('Times', 14)).pack()
+        start_entry = tk.Entry(frameup, width=50)
+        start_entry.pack(pady=5)
+
+        # Total start time selection
+        end_label = tk.Label(
+            frameup, text="Insert end time of scanning window period eg  : 2016-01-01 00:00:00  ", font=('Times', 14)).pack()
+        end_entry = tk.Entry(frameup, width=50)
+        end_entry.pack(pady=5)
+
+        # build the console
+
+        frame_console = tk.Frame(new_window, width=100,
+                                 height=10, borderwidth=1, relief='solid')
+        frame_console.pack(side='bottom', fill='both', padx=10, pady=10)
+
+        # Create a Text widget to display console output
+        console_output = tk.Text(
+            frame_console, wrap=tk.WORD, width=80, height=10)
+        console_output.pack(padx=10, pady=10)
+
+        # Redirect sys.stdout to the Text widget
+        class ConsoleRedirector:
+            def __init__(self, text_widget):
+                self.text_space = text_widget
+
+            def write(self, message):
+                self.text_space.insert(tk.END, message)
+                self.text_space.see(tk.END)  # Automatically scroll to the end
+                self.text_space.update_idletasks()  # Update the widget
+
+        # Create an instance of ConsoleRedirector and redirect sys.stdout
+        console_redirector = ConsoleRedirector(console_output)
+        sys.stdout = console_redirector
+        sys.stderr = console_redirector
+
+        def parse_list_input(input_str):
+
+            # Parse the input string as a Python expression (list)
+            converted_list = ast.literal_eval(input_str)
+            if isinstance(converted_list, list):
+                return converted_list
+
+        # submit to start extracting
+
+        def check_submit_rr():
+
+            if not bct_entry.get():
+                messagebox.showwarning(
+                    "Warning", "Please browse for the wind file.")
+
+            else:
+                file_input = bct_entry.get()
+                quad = parse_list_input(quad_entry.get())
+                spd = parse_list_input(spd_entry.get())
+                frequency = parse_list_input(frq_entry.get())
+                start_time_total = t_start_entry.get()
+                end_time_total = t_end_entry.get()
+                start_time = start_entry.get()
+                end_time = end_entry.get()
+
+                rep_period.identify_rep_period(file_input, quad, spd, start_time_total,
+                                               end_time_total,
+                                               frequency, start_time, end_time)
+
+                print(
+                    'Representative period file has been generated')
+
+        # SUbmit code for execution
+        # Submit button
+        submit_button = tk.Button(
+            frameup, text="Identify Rep period", command=check_submit_rr, width=20)
+        submit_button.pack(pady=15, anchor='s')
+
+
+# %%
 root = tk.Tk()
 root.title("Delft3d-EasyGSH companion")
-root.geometry('800x950')
+root.geometry('700x800')
 root.resizable(0, 0)
+
+
+# def toggle_fullscreen(event=None):
+#     is_fullscreen = not root.attributes("-fullscreen")
+#     root.attributes("-fullscreen", is_fullscreen)
+
+
+# def end_fullscreen(event=None):
+#     root.attributes("-fullscreen", False)
+
+
+# # Bind the F11 key to toggle full screen
+# root.bind("<F11>", toggle_fullscreen)
+
+# # Bind the Escape key to exit full screen
+# root.bind("<Escape>", end_fullscreen)
 
 style = Style(theme="darkly")
 
-
 # %% Load the logo image
 
-# path = "D:/Clayton_Phd/Script_archive/Gui_bnd_generator/easyd3d_logo.png"
-# path_2 = "D:/Clayton_Phd/Script_archive/Gui_bnd_generator/easyd3d_logo_large.ico"
 
-# root.img = tk.PhotoImage(file=path)
-# root.iconphoto(True,  root.img)
-# #
-
-# %% Load the logo image
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -1770,18 +1999,21 @@ file_types = [
     "Bcw file overlapping over two years",
     "Boundary location CSV file",
     "Boundary location and mdw file",
-    "Add sea level change to .bct files"
+    "Add sea level change to .bct files",
+    "Identify representative period"
+
+
 ]
 
 choice_var = tk.IntVar()
 
 for idx, file_type in enumerate(file_types, start=1):
     radio_button = tk.Radiobutton(frame2, text=file_type,
-                                  variable=choice_var, value=idx,  font=('Times', 10))
+                                  variable=choice_var, value=idx,  font=('Times', 14))
     radio_button.pack(anchor=tk.W, pady=5)
 
 # Submit button
-submit_button = tk.Button(root, text="Submit", command=submit_choice)
+submit_button = tk.Button(root, text="Submit", command=submit_choice, width=20)
 submit_button.pack(pady=10)
 
 # Second Frame for choosing file type using radio buttons
@@ -1790,8 +2022,9 @@ frame3.pack()
 
 text = """Source for EasyGSH data: https://mdi-de.baw.de/easygsh/Easy_Viewer_syn.html#home\n
 Citations for using EasyGSH data: Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004\n
-Please read the source document to understand how these datasets are generated. \nHere are some quick points:
-The data provided are the results of a numerical simulation gridded over 1km and provided every 20 minutes.\nThe numerical modeling approach used to generate the data utilizes annually updated bathymetry, tidal dynamics simulated by the Untrim2 modeling system using tidal constituents at the open boundaries (corrected for external surge), waves computed using a combination of the model UnK (Schneggenburger et al., 2000) and SWAN for near-shore physical processes.\n\nThis GUI creates files for the Delft3D4 module.\nIt extract time-series water level 2D information for any designed boundaries within the EasyGSH model domain (data found under the synoptic simulation, UnTRIM2, 1000m grid section.)\nIt extracts time series wave/Sea-state data 2D (significant height, peak period, direction, directional spread) for any designed boundaries within the EasyGSH model domain (data found under the synoptic simulation, UnTRIM2, 1000m grid section.)"""
+
+Documenttation and source code can be found at https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git
+"""
 
 # Create a label with the provided text and place it inside the frame
 permanent_text_label = tk.Label(
@@ -1802,7 +2035,7 @@ permanent_text_label.pack()
 frame4 = tk.Frame(root, borderwidth=0.2, relief='solid')
 frame4.pack(padx=10, pady=10, side='left')
 
-text = "The source code can be found at https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git\nGUI created by : Clayton Soares"
+text = "GUI created by : Clayton Soares\ncontact: clayton.soares@ifg.uni-kiel.de"
 
 # Create a label with the provided text and place it inside the frame
 permanent_text_label = tk.Label(

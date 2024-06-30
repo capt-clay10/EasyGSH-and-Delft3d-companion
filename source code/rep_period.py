@@ -12,6 +12,8 @@ def identify_rep_period(file_input, quad, spd, start_time_total, end_time_total,
     from sklearn.metrics import mean_absolute_error as mae
     from sklearn.metrics import mean_squared_error as mse
     from tqdm import tqdm
+    import time
+    import ast
 
     # %% functions
 
