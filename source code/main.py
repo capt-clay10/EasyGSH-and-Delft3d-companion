@@ -11,6 +11,7 @@ import time
 import os
 import extract_from_d3d_files
 import output_methods
+import rep_period
 """RUN THIS FILE"""
 # %% import modules
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -40,7 +41,8 @@ if __name__ == '__main__':
           'For bcw file overlapping over two years, type 5',
           'For boundary location csv file, type 6',
           'For boundary location and mdw file, type 7',
-          'For adding sea level change to .bct files, type 8', sep='\n')
+          'For adding sea level change to .bct files, type 8',
+          'For identifying Representative period, type 9', sep='\n')
     print()
     print('Important information : for choice 1 , boundary files cannot be generated with overlapping input years')
     print()
@@ -581,5 +583,46 @@ if __name__ == '__main__':
 
         print(f'sea level change added to water levels, type {type_add}')
 
+    elif choice == 9:
+        print("Important note, the file should have only 3 columns, in the following order date, speed, dir")
+        print("Important note, the file should be comma separated (,)")
+        print("First row should be column headers")
+        print('\n\n')
+
+        file_input = input(
+            'Enter file name of the wind data (w/o quotation marks), eg helgoland_wind.txt : ')
+        print('\n\n')
+
+        print("In the next step you need to provide a list of relevant parameters for how to prescribe them: ",
+              "Directional orientations can be prescribed as ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE','SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']",
+
+              "Speed classes can be prescribed as [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] ",
+              "Period frequency can be prescribed as ['2MS', '3MS', '4MS', '5MS', '6MS']", sep='\n\n')
+
+        quad = input(
+            "Provide list of directional orientations of relavance as mentioned above :  ")
+        print()
+        spd = input(
+            "Provide list of speed classes of relavance as mentioned above :  ")
+
+        start_time_total = input(
+            "Insert start time of total period eg  : 1975-01-01 00:00:00  ")
+        end_time_total = input(
+            "Insert end time of total period eg  : 2019-12-31 00:00:00  ")
+
+        frequency = ("Choose period frequency of relavance :  ")
+
+        print("Now insert details for the scanning window for compare periods")
+        start_time = input(
+            "Insert start time of scanning window period eg  : 1996-01-01 00:00:00  ")
+
+        print("End time must be Total period end time - largest period frequency")
+        end_time = input(
+            "Insert end time of scanning window period eg  : 2016-01-01 00:00:00  ")
+
+        rep_period.identify_rep_period(file_input, quad, spd, start_time_total, end_time_total,
+                                       frequency, start_time, end_time)
+
+        print('Representative wind file has been generated')
     else:
         print("You probably din't insert the number right, Please run again! ")
