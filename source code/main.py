@@ -12,6 +12,7 @@ import os
 import extract_from_d3d_files
 import output_methods
 import rep_period
+import ast
 """RUN THIS FILE"""
 # %% import modules
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -584,6 +585,13 @@ if __name__ == '__main__':
         print(f'sea level change added to water levels, type {type_add}')
 
     elif choice == 9:
+
+        def parse_list_input(input_str):
+            # Parse the input string as a Python expression (list)
+            converted_list = ast.literal_eval(input_str)
+            if isinstance(converted_list, list):
+                return converted_list
+
         print("Important note, the file should have only 3 columns, in the following order date, speed, dir")
         print("Important note, the file should be comma separated (,)")
         print("First row should be column headers")
@@ -597,28 +605,31 @@ if __name__ == '__main__':
               "Directional orientations can be prescribed as ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE','SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']",
 
               "Speed classes can be prescribed as [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] ",
-              "Period frequency can be prescribed as ['2MS', '3MS', '4MS', '5MS', '6MS']", sep='\n\n')
+              "Period frequency can be prescribed as ['2MS', '3MS', '4MS', '5MS', '6MS']\n\n", sep='\n\n')
 
         quad = input(
             "Provide list of directional orientations of relavance as mentioned above :  ")
+        quad = parse_list_input(quad)
         print()
         spd = input(
             "Provide list of speed classes of relavance as mentioned above :  ")
+        spd = parse_list_input(spd)
 
         start_time_total = input(
-            "Insert start time of total period eg  : 1975-01-01 00:00:00  ")
+            "Insert start time of total period eg  : 1975-01-01 00:00:00 :")
         end_time_total = input(
-            "Insert end time of total period eg  : 2019-12-31 00:00:00  ")
+            "Insert end time of total period eg  : 2019-12-31 00:00:00 :")
 
-        frequency = ("Choose period frequency of relavance :  ")
+        frequency = input("Choose period frequency of relavance :  ")
+        frequency = parse_list_input(frequency)
 
-        print("Now insert details for the scanning window for compare periods")
+        print("\nNow insert details for the scanning window for compare periods\n")
         start_time = input(
-            "Insert start time of scanning window period eg  : 1996-01-01 00:00:00  ")
+            "Insert start time of scanning window period eg  : 1996-01-01 00:00:00 :")
 
-        print("End time must be Total period end time - largest period frequency")
+        print("\nEnd time must be (Total period end time - largest period frequency)\n")
         end_time = input(
-            "Insert end time of scanning window period eg  : 2016-01-01 00:00:00  ")
+            "Insert end time of scanning window period eg  : 2016-01-01 00:00:00 :")
 
         rep_period.identify_rep_period(file_input, quad, spd, start_time_total, end_time_total,
                                        frequency, start_time, end_time)

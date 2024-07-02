@@ -16,6 +16,7 @@ import sea_level_change
 import rep_period
 import ast
 import os
+import xarray as xr
 from datetime import datetime, timedelta
 
 
@@ -28,7 +29,7 @@ class Application(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("Delft3d-EasyGSH companion")
+        self.title("Delft3d-EasyGSH companion (EasyD3D)")
         self.geometry('700x800')
         self.resizable(0, 0)
 
@@ -37,7 +38,8 @@ class Application(tk.Tk):
         self.task_queue = queue.Queue()
 
         # Load logo
-        self.img = tk.PhotoImage(file=self.resource_path('easyd3d_logo.png'))
+        self.img = tk.PhotoImage(
+            file=self.resource_path('easyd3d_logo_large.png'))
         self.iconphoto(True, self.img)
 
         self.setup_ui()
@@ -72,9 +74,9 @@ class Application(tk.Tk):
 
         file_types = [
             "All files",
-            "Bct file",
+            "Bct file (water-level time series)",
             "Bct file overlapping over two years",
-            "Bcw file",
+            "Bcw file (wave data time series)",
             "Bcw file overlapping over two years",
             "Boundary location CSV file",
             "Boundary location and mdw file",
@@ -98,10 +100,7 @@ class Application(tk.Tk):
         frame3 = tk.Frame(self)
         frame3.pack()
 
-        text = """Source for EasyGSH data: https://mdi-de.baw.de/easygsh/Easy_Viewer_syn.html#home\n
-        Citations for using EasyGSH data: Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004\n
-
-        Documentation and source code can be found at https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git
+        text = """Source for EasyGSH data: https://mdi-de.baw.de/easygsh/Easy_Viewer_syn.html#home\n\nCitations for using EasyGSH data: Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004\n\nDocumentation and source code can be found at https://github.com/capt-clay10/bct-bcw-mdw-grd_to_CSV_file_generator-for-EasyGSH-Delft3D.git
         """
 
         permanent_text_label = tk.Label(
@@ -113,7 +112,7 @@ class Application(tk.Tk):
 
         text = "GUI created by : Clayton Soares\ncontact: clayton.soares@ifg.uni-kiel.de"
         permanent_text_label = tk.Label(
-            frame4, text=text, font=('Helvetic', 6), justify=tk.LEFT, wraplength=400)
+            frame4, text=text, font=('Helvetic', 10), justify=tk.LEFT, wraplength=400)
         permanent_text_label.pack(anchor='sw')
 
         # Start the queue processing
@@ -160,7 +159,7 @@ class Application(tk.Tk):
 
             new_window = tk.Toplevel(self)
             new_window.title("Processing Window")
-            new_window.geometry('800x1000')
+            # new_window.geometry('1000x1000')
             new_window.grab_set()
             new_window.resizable(1, 0)
             # Bind the F11 key to toggle full screen for the internal window
@@ -232,8 +231,6 @@ class Application(tk.Tk):
 
     def process_all_files(self, main_frame):
 
-        # Content of your existing code for option 1
-
         # Frame for Flow Module
         frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
         frameup.pack(side='left', fill='both', expand=True, padx=10)
@@ -247,8 +244,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -334,6 +332,7 @@ class Application(tk.Tk):
             radio_button_w.pack(anchor='c')
 
         def check_submit():
+            t = time.time()
             if not mdf_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .mdf file")
@@ -485,18 +484,17 @@ class Application(tk.Tk):
         # Submit code for execution
         frame_submit = tk.Frame(main_frame, width=200,
                                 height=20, borderwidth=1, relief='solid')
-        frame_submit.pack(fill='both', padx=10, pady=10)
+        frame_submit.pack(side='bottom', fill='both', padx=10, pady=10)
 
         submit_button = tk.Button(
             frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
     def process_bct_files(self, main_frame):
-        # Content of your existing code for option 2
 
         # Frame for Flow Module
         frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
-        frameup.pack(side='left', fill='both', expand=True, padx=10)
+        frameup.pack(fill='both', expand=True, padx=10)
         left_label = tk.Label(frameup, text="Flow Module", font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
 
@@ -547,6 +545,7 @@ class Application(tk.Tk):
             radio_button_f.pack(anchor='c')
 
         def check_submit():
+            t = time.time()
             if not mdf_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .mdf file")
@@ -657,8 +656,9 @@ class Application(tk.Tk):
         frameup.pack(side='left', fill='both', expand=True, padx=10)
         left_label = tk.Label(frameup, text="Flow Module", font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -712,6 +712,7 @@ class Application(tk.Tk):
             radio_button_f.pack(anchor='c')
 
         def check_submit():
+            t = time.time()
             if not mdf_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .mdf file")
@@ -812,7 +813,7 @@ class Application(tk.Tk):
                     f'Total time taken for the bct overlap file is {elapsed_final/60} mins')
 
         # Submit button for execution
-        frame_submit = tk.Frame(new_window, width=200,
+        frame_submit = tk.Frame(main_frame, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
@@ -828,8 +829,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -904,6 +906,7 @@ class Application(tk.Tk):
         e_date_entry.pack(pady=5)
 
         def check_submit():
+            t = time.time()
             if not mdw_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .mdw file")
@@ -991,7 +994,7 @@ class Application(tk.Tk):
                 print('New mdw file created')
 
         # Submit button for execution
-        frame_submit = tk.Frame(new_window, width=200,
+        frame_submit = tk.Frame(main_frame, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
@@ -1007,8 +1010,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -1090,6 +1094,7 @@ class Application(tk.Tk):
         e_date_entry.pack(pady=5)
 
         def check_submit():
+            t = time.time()
             if not mdw_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .mdw file")
@@ -1182,7 +1187,7 @@ class Application(tk.Tk):
                 print('New mdw file created')
 
         # Submit button for execution
-        frame_submit = tk.Frame(new_window, width=200,
+        frame_submit = tk.Frame(main_frame, width=200,
                                 height=20, borderwidth=1, relief='solid')
         frame_submit.pack(fill='both', padx=10, pady=10)
 
@@ -1198,8 +1203,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Wave/Flow Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -1221,6 +1227,7 @@ class Application(tk.Tk):
             framedown, text="Browse", command=lambda: browse_file(bndw_entry)).pack(pady=20)
 
         def check_submit():
+            t = time.time()
             if not grdw_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .grd file.")
@@ -1257,7 +1264,7 @@ class Application(tk.Tk):
             frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
-    def generate_boundary_mdw_files(self, main_frame):
+    def generate_boundary_mdw(self, main_frame):
         # Frame for Wave Module
         framedown = tk.Frame(main_frame, width=250,
                              borderwidth=1, relief='solid')
@@ -1265,8 +1272,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Wave Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -1295,6 +1303,7 @@ class Application(tk.Tk):
             framedown, text="Browse", command=lambda: browse_file(mdw_entry)).pack(pady=20)
 
         def check_submit():
+            t = time.time()
             if not grdw_entry.get():
                 messagebox.showwarning(
                     "Warning", "Please browse for the .grd file.")
@@ -1337,7 +1346,7 @@ class Application(tk.Tk):
             frame_submit, text="Extract Boundary conditions", command=check_submit, width=30)
         submit_button.pack(pady=10, anchor='s')
 
-    def add_sea_level_change(self, main_frame):
+    def add_sea_level(self, main_frame):
         # Frame for Flow Module
         framedown = tk.Frame(main_frame, width=250,
                              borderwidth=1, relief='solid')
@@ -1345,8 +1354,9 @@ class Application(tk.Tk):
         right_label = tk.Label(
             framedown, text="Flow Module", font=("Times", 16))
         right_label.pack(side='top', padx=10, pady=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
@@ -1401,33 +1411,40 @@ class Application(tk.Tk):
             frame_submit, text="Add sea level", command=check_submit_bct, width=20)
         submit_button.pack(pady=10, anchor='s')
 
-    def identify_rep_period(self, main_frame):
+    def identify_representative_period(self, main_frame):
         # Frame for Representative Period
-        framedown = tk.Frame(main_frame, width=200,
+        framedown = tk.Frame(main_frame, width=250,
                              borderwidth=1, relief='solid')
         framedown.pack(side='left', fill='both', expand=True, padx=10)
         left_label = tk.Label(
             framedown, text="Representative period", font=("Times", 16))
         left_label.pack(side='top', padx=10, pady=10)
 
-        frameup = tk.Frame(main_frame, width=200, borderwidth=1, relief='solid')
+        frameup = tk.Frame(main_frame, width=250, borderwidth=1, relief='solid')
         frameup.pack(side='right', fill='both', expand=True, padx=10)
-
+        t = time.time()
         # Function to browse for files
+
         def browse_file(entry_widget):
             file_path = filedialog.askopenfilename()
             entry_widget.delete(0, "end")
             entry_widget.insert(0, file_path)
 
         # Input button for WIND file
-        wind_label = tk.Label(framedown, text="WIND file:",
+        wind_label = tk.Label(framedown, text="WIND file: \n\nThe file should have only 3 columns, in the following order date, speed, dir \nThe file should be comma separated (,)\n Please remove nans and inconsistencies before hand",
                               font='Times').pack(pady=5)
         wind_entry = tk.Entry(framedown, width=50)
         wind_entry.pack()
         wind_button = tk.Button(
             framedown, text="Browse", command=lambda: browse_file(wind_entry)).pack(pady=20)
 
-        text = "Provide choice list of directional orientations of relevance:\n['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE','SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']\nSpeed classes:\n[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]\nPeriod frequency:\n['2MS', '3MS', '4MS', '5MS', '6MS']"
+        # Output name
+        output_label = tk.Label(
+            framedown, text="Output filename:", font=('Times', 14)).pack(pady=5)
+        output_entry = tk.Entry(framedown, width=50)
+        output_entry.pack(pady=5)
+
+        text = "\nInsert values as a list\n\nDirectional orientations:\n['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE','SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']\n\nSpeed classes:\n[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]\n\nPeriod frequency:\n['2MS', '3MS', '4MS', '5MS', '6MS']\n\n"
 
         permanent_text_label = tk.Label(
             framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14))
@@ -1435,7 +1452,7 @@ class Application(tk.Tk):
 
         # Quad selection
         quad_label = tk.Label(
-            framedown, text="Directional orientations:", font=('Times', 14)).pack(pady=5)
+            framedown, text="Directional orientations (minimum 2):", font=('Times', 14)).pack(pady=5)
         quad_entry = tk.Entry(framedown, width=50)
         quad_entry.pack(pady=5)
 
@@ -1453,7 +1470,7 @@ class Application(tk.Tk):
 
         # Total reference period
         t_start_label = tk.Label(
-            frameup, text="Start time of total period:", font=('Times', 14)).pack()
+            frameup, text="Start time of total period:\n eg  : 1975-01-01 00:00:00 ", font=('Times', 14)).pack()
         t_start_entry = tk.Entry(frameup, width=50)
         t_start_entry.pack(pady=5)
 
@@ -1464,12 +1481,12 @@ class Application(tk.Tk):
 
         # Compare periods
         start_label = tk.Label(
-            frameup, text="Start time of scanning window period:", font=('Times', 14)).pack()
+            frameup, text=" Start time of scanning window period", font=('Times', 14)).pack()
         start_entry = tk.Entry(frameup, width=50)
         start_entry.pack(pady=5)
 
         end_label = tk.Label(
-            frameup, text="End time of scanning window period:", font=('Times', 14)).pack()
+            frameup, text=" End time of scanning window period must be at most\n(Total period end time - largest period frequency) ", font=('Times', 14)).pack()
         end_entry = tk.Entry(frameup, width=50)
         end_entry.pack(pady=5)
 
@@ -1485,6 +1502,7 @@ class Application(tk.Tk):
                     "Warning", "Please browse for the wind file.")
             else:
                 file_input = wind_entry.get()
+                output_name = output_entry.get()
                 quad = parse_list_input(quad_entry.get())
                 spd = parse_list_input(spd_entry.get())
                 frequency = parse_list_input(frq_entry.get())
@@ -1494,7 +1512,7 @@ class Application(tk.Tk):
                 end_time = end_entry.get()
 
                 rep_period.identify_rep_period(
-                    file_input, quad, spd, start_time_total, end_time_total, frequency, start_time, end_time)
+                    file_input, output_name, quad, spd, start_time_total, end_time_total, frequency, start_time, end_time)
                 print('Representative period file has been generated')
 
         # Submit button for execution

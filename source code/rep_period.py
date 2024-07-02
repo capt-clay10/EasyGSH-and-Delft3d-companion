@@ -1,4 +1,4 @@
-def identify_rep_period(file_input, quad, spd, start_time_total, end_time_total, frequency,
+def identify_rep_period(file_input, output_name, quad, spd, start_time_total, end_time_total, frequency,
                         start_time, end_time):
 
     from sklearn.metrics import r2_score
@@ -533,9 +533,6 @@ def identify_rep_period(file_input, quad, spd, start_time_total, end_time_total,
     wind = pd.read_csv(file_input, delimiter=(','), skiprows=1,
                        names=['date', 'speed', 'dir'])
 
-    # wind = pd.read_csv(file_input, delimiter=(';'), skiprows=1,
-    #                    names=['station', 'date', 'qn3', 'speed', 'dir', 'extra', ])
-
     wind_2 = wind[wind['dir'] <= 360]
     wind_2 = wind_2[wind_2['dir'] >= 0]
     wind_2 = wind_2[wind_2['speed'] >= 0]
@@ -779,4 +776,4 @@ def identify_rep_period(file_input, quad, spd, start_time_total, end_time_total,
 
     # %% copy to csv
     rep_period.to_csv(
-        f'rep_period_{file_input[0:-9]}_{name_span_out}_{quad_range}_{spd_range}_{freq_name}.txt')
+        f'rep_period_{output_name}_{name_span_out}_{quad_range}_{spd_range}_{freq_name}.txt')
