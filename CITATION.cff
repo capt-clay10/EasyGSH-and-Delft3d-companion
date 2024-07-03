@@ -24,11 +24,13 @@ identifiers:
 abstract: >-
   Extracts data (water level and wave, S-T varying) from
   provided EasyGSH dataset and writes it into Delft3D
-  readable boundary condition file format. 
+  readable boundary condition file format. Additionally can identify representative period by wind
+  based on the algorithm defined by Soares et al. (2024) 
 keywords:
   - EasyGSH
   - Delft3D4
   - BCW and BCT file generator
+  - Representative period
 license: MIT
 commit: 9f403d581eac3abf92ae893343bb48311893ba34
 date-released: '2023-07-04'
