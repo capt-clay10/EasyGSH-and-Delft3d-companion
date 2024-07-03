@@ -1,30 +1,27 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
-title: '  Boundary condition file generator for Delft3D4 with EasyGSH dataset'
+title: 'Boundary condition file generator for Delft3D4 with EasyGSH dataset'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
-type: software
+type: Software
 authors:
   - given-names: Clayton Cyril
     family-names: Soares
     email: clayton.soares@ifg.uni-kiel.de
     orcid: 'https://orcid.org/0000-0001-6780-2305'
-    affiliation: 'CAU, kiel'
+    affiliation: 'CAU, Kiel'
   - given-names: Arne
     family-names: Knies
     email: arne.knies@ifg.uni-kiel.de
     affiliation: 'CAU, Kiel'
 identifiers:
-  - type: url
+  - type: URL
     value: >-
       https://github.com/capt-clay10/EasyGSH-and-Delft3d-companion.git
 abstract: >-
   Extracts data (water level and wave, S-T varying) from
   provided EasyGSH dataset and writes it into Delft3D
-  readable boundary condition file format. Additionally can identify representative period by wind
+  readable boundary condition file format. Additionally, it can identify representative periods by wind
   based on the algorithm defined by Soares et al. (2024) 
 keywords:
   - EasyGSH
@@ -32,5 +29,4 @@ keywords:
   - BCW and BCT file generator
   - Representative period
 license: MIT
-commit: 9f403d581eac3abf92ae893343bb48311893ba34
-date-released: '2023-07-04'
+date-released: '2024-07-01'
