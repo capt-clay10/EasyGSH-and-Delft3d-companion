@@ -17,8 +17,45 @@ import rep_period
 import cosmo_wind_file_generator
 import ast
 import os
-import xarray as xr
 from datetime import datetime, timedelta
+
+
+def resource_path(self, relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+def show_splash(app, resource_path):
+    splash = tk.Toplevel()
+    splash.overrideredirect(True)
+
+    # Load splash screen image
+    splash_image = tk.PhotoImage(file=resource_path('easyd3d_logo.png'))
+    splash_label = tk.Label(splash, image=splash_image)
+    splash_label.pack()
+
+    # Center splash screen
+    window_width = 60
+    window_height = 40
+    screen_width = splash.winfo_screenwidth()
+    screen_height = splash.winfo_screenheight()
+    position_top = int(screen_height / 2 - window_height / 2)
+    position_right = int(screen_width / 2 - window_width / 2)
+    splash.geometry(
+        f'{window_width}x{window_height}+{position_right}+{position_top}')
+
+    def close_splash():
+        splash.destroy()
+        app.deiconify()  # Show the main window
+
+    # Close splash screen after 3 seconds
+    splash.after(3000, close_splash)
+    splash.mainloop()
 
 
 class Application(tk.Tk):
@@ -30,6 +67,7 @@ class Application(tk.Tk):
 
     def __init__(self):
         super().__init__()
+        self.withdraw()  # Hide the main window initially
         self.title("Delft3d-EasyGSH companion (EasyD3D)")
         self.geometry('700x800')
         self.resizable(0, 0)
@@ -44,6 +82,8 @@ class Application(tk.Tk):
         self.iconphoto(True, self.img)
 
         self.setup_ui()
+        self.after(0, lambda: show_splash(
+            self, self.resource_path))  # Show splash screen
 
     def resource_path(self, relative_path):
         """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -1555,12 +1595,12 @@ class Application(tk.Tk):
             framedown, text="Browse", command=lambda: browse_file(cosmo_file_path_entry))
         cosmo_file_path_button.pack(pady=20)
 
-        ref_time_label = tk.Label(framedown, text="Reference time from model simulation",
+        ref_time_label = tk.Label(framedown, text="Reference time from model simulation:\n    eg: 2011-01-01 00:00:00     ",
                                   font='Times').pack(pady=5)
         ref_time_entry = tk.Entry(framedown, width=50)
         ref_time_entry.pack()
 
-        output_filename_label = tk.Label(framedown, text="Output file name:",
+        output_filename_label = tk.Label(framedown, text="Output file name:\n        eg: cosmo_2011",
                                          font='Times').pack(pady=5)
         output_filename_entry = tk.Entry(framedown, width=50)
         output_filename_entry.pack()
@@ -1615,5 +1655,6 @@ class Application(tk.Tk):
 
 
 if __name__ == "__main__":
+
     app = Application()
     app.mainloop()

@@ -14,6 +14,10 @@ def create_wind_fields_cosmo(grid_ed_path, cosmo_db_utm_path, cosmo_files_path,
     import datetime as dt
     import cfgrib
     from tqdm import tqdm
+    import warnings
+    # Suppress specific warning about ecCodes version
+    warnings.filterwarnings(
+        "ignore", message="ecCodes 2.31.0 or higher is recommended. You are running version 2.26.0")
 
     # %% Functions
 
