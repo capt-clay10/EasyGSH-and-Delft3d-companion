@@ -14,6 +14,7 @@ import bcw_year_overlap_file_generator
 import mdw_writer
 import sea_level_change
 import rep_period
+import cosmo_wind_file_generator
 import ast
 import os
 import xarray as xr
@@ -81,7 +82,8 @@ class Application(tk.Tk):
             "Boundary location CSV file",
             "Boundary location and mdw file",
             "Add sea level change to .bct files",
-            "Identify representative period"
+            "Identify representative period",
+            "Generate ST-varying wind field files- COSMO"
         ]
 
         self.choice_var = tk.IntVar()
@@ -154,7 +156,7 @@ class Application(tk.Tk):
         elif selected_choice == 0:
             messagebox.showwarning(
                 "Warning", "Please select a file type before submitting.")
-        elif selected_choice in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+        elif selected_choice in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
             t = time.time()  # start the time counter
 
             new_window = tk.Toplevel(self)
@@ -194,6 +196,8 @@ class Application(tk.Tk):
                     self._stderr = sys.stderr
 
                 def write(self, message):
+                    if not message.endswith('\n'):
+                        message += '\n'
                     self.text_space.insert(tk.END, message)
                     # Automatically scroll to the end
                     self.text_space.see(tk.END)
@@ -202,9 +206,10 @@ class Application(tk.Tk):
                 def flush(self):
                     self.text_space.update_idletasks()  # Ensure the widget updates
 
-            console_redirector = ConsoleRedirector(console_output)
-            sys.stdout = console_redirector
-            sys.stderr = console_redirector
+            # console_redirector = ConsoleRedirector(console_output)
+            # Redirect stdout to the Text widget
+            sys.stdout = ConsoleRedirector(console_output)
+            sys.stderr = ConsoleRedirector(console_output)
 
             def process_choice():
                 if selected_choice == 1:
@@ -225,6 +230,8 @@ class Application(tk.Tk):
                     self.add_sea_level(main_frame)
                 elif selected_choice == 9:
                     self.identify_representative_period(main_frame)
+                elif selected_choice == 10:
+                    self.generate_wind_files(main_frame)
 
             # Run the processing function in a separate thread to avoid blocking the GUI
             threading.Thread(target=process_choice).start()
@@ -1519,6 +1526,92 @@ class Application(tk.Tk):
         submit_button = tk.Button(
             frameup, text="Identify Rep period", command=check_submit_rr, width=20)
         submit_button.pack(pady=15, anchor='s')
+
+    def generate_wind_files(self, main_frame):
+        # Frame for Wave Module
+        framedown = tk.Frame(main_frame, width=250,
+                             borderwidth=1, relief='solid')
+        framedown.pack(side='top', fill='both', expand=True, padx=10)
+        right_label = tk.Label(
+            framedown, text="COSMO- Wind files", font=("Times", 16))
+        right_label.pack(side='top', padx=10, pady=10)
+        t = time.time()
+
+        # Function to browse for files
+
+        def browse_file(entry_widget):
+            file_path = filedialog.askdirectory()
+            entry_widget.config(state='normal')
+            entry_widget.delete(0, "end")
+            entry_widget.insert(0, file_path)
+            entry_widget.config(state='disabled')
+
+        # Input buttons for .grd, .bnd, and .mdw files
+        cosmo_file_path_label = tk.Label(framedown, text="File path with COSMO (U,V,P) data:",
+                                         font='Times').pack(pady=5)
+        cosmo_file_path_entry = tk.Entry(framedown, width=50, state='readonly')
+        cosmo_file_path_entry.pack()
+        cosmo_file_path_button = tk.Button(
+            framedown, text="Browse", command=lambda: browse_file(cosmo_file_path_entry))
+        cosmo_file_path_button.pack(pady=20)
+
+        ref_time_label = tk.Label(framedown, text="Reference time from model simulation",
+                                  font='Times').pack(pady=5)
+        ref_time_entry = tk.Entry(framedown, width=50)
+        ref_time_entry.pack()
+
+        output_filename_label = tk.Label(framedown, text="Output file name:",
+                                         font='Times').pack(pady=5)
+        output_filename_entry = tk.Entry(framedown, width=50)
+        output_filename_entry.pack()
+
+        text = "\nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 called UV and should have all the U and V monthly cosmo files you wish to extract from.\n\nFolder 2 called PS and should have all the PS monthly files.\nThe files can be found at\n\nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/  \n\n here look for PS, U_10M and V_10M and download all monthly files necesssary\n "
+
+        permanent_text_label = tk.Label(
+            framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14))
+        permanent_text_label.pack()
+
+        def check_submit():
+            t = time.time()
+            if not cosmo_file_path_entry.get():
+                messagebox.showwarning(
+                    "Warning", "Please browse for the path with the U,V,PS files")
+            elif not output_filename_entry.get():
+                messagebox.showwarning(
+                    "Warning", "Please provide the output file name.")
+            elif not ref_time_entry.get():
+                messagebox.showwarning(
+                    "Warning", "Please provide the reference time.")
+            else:
+                # Input files
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                grid_ed_path = os.path.join(script_dir, 'DB_6km.mat')
+                cosmo_db_utm_path = os.path.join(script_dir, 'COSMO_DB_UTM.mat')
+
+                cosmo_files_path = cosmo_file_path_entry.get()
+                file_name = output_filename_entry.get()
+                ref_time = ref_time_entry.get()
+
+                # Delete .idx files before starting the process
+                for root, dirs, files in os.walk(cosmo_files_path):
+                    for file in files:
+                        if file.endswith('.idx'):
+                            os.remove(os.path.join(root, file))
+
+                cosmo_wind_file_generator.create_wind_fields_cosmo(grid_ed_path,
+                                                                   cosmo_db_utm_path,
+                                                                   cosmo_files_path,
+                                                                   file_name,
+                                                                   ref_time)
+
+        # Submit button for execution
+        frame_submit = tk.Frame(main_frame, width=200,
+                                height=20, borderwidth=1, relief='solid')
+        frame_submit.pack(fill='both', padx=10, pady=10)
+
+        submit_button = tk.Button(
+            frame_submit, text="Generate wind files", command=check_submit, width=30)
+        submit_button.pack(pady=10, anchor='s')
 
 
 if __name__ == "__main__":
