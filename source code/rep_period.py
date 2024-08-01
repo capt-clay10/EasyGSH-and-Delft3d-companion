@@ -1,5 +1,5 @@
 def identify_rep_period(file_input, output_name, quad, spd, start_time_total, end_time_total, frequency,
-                        start_time, end_time):
+                        start_time, end_time, out_path):
 
     from sklearn.metrics import r2_score
     import pandas as pd
@@ -776,4 +776,4 @@ def identify_rep_period(file_input, output_name, quad, spd, start_time_total, en
 
     # %% copy to csv
     rep_period.to_csv(
-        f'rep_period_{output_name}_{name_span_out}_{quad_range}_{spd_range}_{freq_name}.txt')
+        f'{out_path}/rep_period_{output_name}_{name_span_out}_{quad_range}_{spd_range}_{freq_name}.txt')

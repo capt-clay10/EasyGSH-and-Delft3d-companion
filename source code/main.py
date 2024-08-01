@@ -12,6 +12,7 @@ import os
 import extract_from_d3d_files
 import output_methods
 import rep_period
+import cosmo_wind_file_generator
 import ast
 """RUN THIS FILE"""
 # %% import modules
@@ -43,7 +44,8 @@ if __name__ == '__main__':
           'For boundary location csv file, type 6',
           'For boundary location and mdw file, type 7',
           'For adding sea level change to .bct files, type 8',
-          'For identifying Representative period, type 9', sep='\n')
+          'For identifying Representative period, type 9',
+          'For generating COSMO wind field files, type 10', sep='\n')
     print()
     print('Important information : for choice 1 , boundary files cannot be generated with overlapping input years')
     print()
@@ -635,5 +637,42 @@ if __name__ == '__main__':
                                        frequency, start_time, end_time)
 
         print('Representative wind file has been generated')
+
+    elif choice == 10:
+        print("""
+                \nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
+                \nFolder 2 should be named PS and should have all the PS monthly files.
+                \nThe COSMO files can be found at:
+                \nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/ 
+                \nOn the webpage look for PS, U_10M and V_10M and download all monthly files necesssary and unzip them - use 7-Zip. Delete the zip files before generating the wind field files.""")
+
+        print('\n\nPlease make sure the auxillary files DB_6km.mat and COSMO_DB_UTM.mat are in the main path as the cosmo folders UV and PS.')
+        print('\nThey should be outside the UV and PS folders.')
+
+        cosmo_path_req = input(
+            "\n\nMain path with COSMO (U,V,PS) data folders and aux mat files:")
+        path = cosmo_path_req
+
+        ref_time = input(
+            "\nReference time from model simulation: eg  : 2011-01-01 00:00:00 :")
+
+        output_file_name = input(
+            "Output file name:      eg: cosmo_2011 :")
+
+        db_file = f'{cosmo_path_req}DB_6km.mat'
+        cosmo_db_file = f'{cosmo_path_req}COSMO_DB_UTM.mat'
+
+        # Delete .idx files before starting the process
+        for root, dirs, files in os.walk(cosmo_path_req):
+            for file in files:
+                if file.endswith('.idx'):
+                    os.remove(os.path.join(root, file))
+
+        cosmo_wind_file_generator.create_wind_fields_cosmo(db_file,
+                                                           cosmo_db_file,
+                                                           cosmo_path_req,
+                                                           output_file_name,
+                                                           ref_time)
+
     else:
         print("You probably din't insert the number right, Please run again! ")

@@ -1498,26 +1498,53 @@ class Application(tk.Tk):
         permanent_text_label.pack()
 
         # Quad selection
-        quad_label = tk.Label(
-            framedown, text="Directional orientations (minimum 2):", font=('Times', 14)).pack(pady=5)
+        quad_label = tk.Label(framedown, text="Directional orientations (minimum 2 or all):", font=(
+            'Times', 14)).pack(pady=5)
+
+        # Adding ALL toggle for quad_entry
+        def toggle_quad():
+            if all_quad_var.get():
+                quad_entry.config(state='disabled')
+            else:
+                quad_entry.config(state='normal')
+
+        all_quad_var = tk.BooleanVar()
+        all_quad_check = tk.Checkbutton(
+            framedown, text="ALL", variable=all_quad_var, command=toggle_quad)
+        all_quad_check.pack()
+
         quad_entry = tk.Entry(framedown, width=50)
         quad_entry.pack(pady=5)
 
         # Speed selection
-        spd_label = tk.Label(framedown, text="Speed classes:",
-                             font=('Times', 14)).pack(pady=5)
+        spd_label = tk.Label(
+            framedown, text="Speed classes (minimum 2 or all):", font=('Times', 14))
+        spd_label.pack(pady=5)
+
+        # Adding ALL toggle for spd_entry
+        def toggle_spd():
+            if all_spd_var.get():
+                spd_entry.config(state='disabled')
+            else:
+                spd_entry.config(state='normal')
+
+        all_spd_var = tk.BooleanVar()
+        all_spd_check = tk.Checkbutton(
+            framedown, text="ALL", variable=all_spd_var, command=toggle_spd)
+        all_spd_check.pack()
+
         spd_entry = tk.Entry(framedown, width=50)
         spd_entry.pack(pady=5)
 
         # Frequency selection
-        frq_label = tk.Label(framedown, text="Period frequency:",
+        frq_label = tk.Label(framedown, text="Period frequency (recommended upto '24MS'):",
                              font=('Times', 14)).pack(pady=5)
         frq_entry = tk.Entry(framedown, width=50)
         frq_entry.pack(pady=5)
 
         # Total reference period
         t_start_label = tk.Label(
-            frameup, text="Start time of total period:\n eg  : 1975-01-01 00:00:00 ", font=('Times', 14)).pack()
+            frameup, text="\nStart time of total period:\n eg  : 1975-01-01 00:00:00 ", font=('Times', 14)).pack()
         t_start_entry = tk.Entry(frameup, width=50)
         t_start_entry.pack(pady=5)
 
@@ -1528,14 +1555,31 @@ class Application(tk.Tk):
 
         # Compare periods
         start_label = tk.Label(
-            frameup, text=" Start time of scanning window period", font=('Times', 14)).pack()
+            frameup, text="\n\nStart time of scanning window period", font=('Times', 14)).pack()
         start_entry = tk.Entry(frameup, width=50)
         start_entry.pack(pady=5)
 
         end_label = tk.Label(
-            frameup, text=" End time of scanning window period must be at most\n(Total period end time - largest period frequency) ", font=('Times', 14)).pack()
+            frameup, text=" End time of scanning window period must be at most\nTotal period end time - largest period frequency ", font=('Times', 14)).pack()
         end_entry = tk.Entry(frameup, width=50)
         end_entry.pack(pady=5)
+
+        def browse_path(entry_widget):
+            file_path = filedialog.askdirectory()
+            entry_widget.config(state='normal')
+            entry_widget.delete(0, "end")
+            entry_widget.insert(0, file_path)
+            entry_widget.config(state='disabled')
+
+        # Out path
+        output_wind_label = tk.Label(frameup, text="\nSelect output path",
+                                     font=('Times', 14)).pack(pady=5)
+        output_wind_entry = tk.Entry(frameup, width=50)
+        output_wind_entry.pack()
+        output_wind_button = tk.Button(
+            frameup, text="Browse", command=lambda: browse_path(output_wind_entry)).pack(pady=20)
+
+        # Out path
 
         def parse_list_input(input_str):
             # Parse the input string as a Python expression (list)
@@ -1550,16 +1594,21 @@ class Application(tk.Tk):
             else:
                 file_input = wind_entry.get()
                 output_name = output_entry.get()
-                quad = parse_list_input(quad_entry.get())
-                spd = parse_list_input(spd_entry.get())
+                # Use preset values if "ALL" is checked
+                quad = (['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+                        if all_quad_var.get() else parse_list_input(quad_entry.get()))
+                spd = ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                       if all_spd_var.get() else parse_list_input(spd_entry.get()))
                 frequency = parse_list_input(frq_entry.get())
                 start_time_total = t_start_entry.get()
                 end_time_total = t_end_entry.get()
                 start_time = start_entry.get()
                 end_time = end_entry.get()
+                out_path = output_wind_entry.get()
 
                 rep_period.identify_rep_period(
-                    file_input, output_name, quad, spd, start_time_total, end_time_total, frequency, start_time, end_time)
+                    file_input, output_name, quad, spd, start_time_total,
+                    end_time_total, frequency, start_time, end_time, out_path)
                 print('Representative period file has been generated')
 
         # Submit button for execution
@@ -1587,7 +1636,7 @@ class Application(tk.Tk):
             entry_widget.config(state='disabled')
 
         # Input buttons for .grd, .bnd, and .mdw files
-        cosmo_file_path_label = tk.Label(framedown, text="File path with COSMO (U,V,P) data:",
+        cosmo_file_path_label = tk.Label(framedown, text="Main path with COSMO (U,V,PS) data folders:",
                                          font='Times').pack(pady=5)
         cosmo_file_path_entry = tk.Entry(framedown, width=50, state='readonly')
         cosmo_file_path_entry.pack()
@@ -1600,12 +1649,17 @@ class Application(tk.Tk):
         ref_time_entry = tk.Entry(framedown, width=50)
         ref_time_entry.pack()
 
-        output_filename_label = tk.Label(framedown, text="Output file name:\n        eg: cosmo_2011",
+        output_filename_label = tk.Label(framedown, text="Output file name:\n      eg: cosmo_2011",
                                          font='Times').pack(pady=5)
         output_filename_entry = tk.Entry(framedown, width=50)
         output_filename_entry.pack()
 
-        text = "\nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 called UV and should have all the U and V monthly cosmo files you wish to extract from.\n\nFolder 2 called PS and should have all the PS monthly files.\nThe files can be found at\n\nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/  \n\n here look for PS, U_10M and V_10M and download all monthly files necesssary\n "
+        text = """
+        \nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
+        \nFolder 2 should be named PS and should have all the PS monthly files.
+        \nThe COSMO files can be found at:
+        \nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/ 
+        \nOn the webpage look for PS, U_10M and V_10M and download all monthly files necesssary and unzip them - use 7-Zip. Delete the zip files before generating the wind field files."""
 
         permanent_text_label = tk.Label(
             framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14))
