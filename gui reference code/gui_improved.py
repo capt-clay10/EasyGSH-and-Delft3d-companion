@@ -1644,25 +1644,25 @@ class Application(tk.Tk):
             framedown, text="Browse", command=lambda: browse_file(cosmo_file_path_entry))
         cosmo_file_path_button.pack(pady=20)
 
-        ref_time_label = tk.Label(framedown, text="Reference time from model simulation:\n    eg: 2011-01-01 00:00:00     ",
+        ref_time_label = tk.Label(framedown, text="Reference time: \nShould be after the model reference time and before the simulation start time\n eg 2011-01-01 00:00:00",
                                   font='Times').pack(pady=5)
         ref_time_entry = tk.Entry(framedown, width=50)
         ref_time_entry.pack()
 
-        output_filename_label = tk.Label(framedown, text="Output file name:\n      eg: cosmo_2011",
+        output_filename_label = tk.Label(framedown, text="Output file name:\neg: cosmo_2011",
                                          font='Times').pack(pady=5)
         output_filename_entry = tk.Entry(framedown, width=50)
         output_filename_entry.pack()
 
         text = """
-        \nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
+        \nThe main path containing the COSMO files should be structured as TWO folders\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
         \nFolder 2 should be named PS and should have all the PS monthly files.
         \nThe COSMO files can be found at:
         \nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/ 
         \nOn the webpage look for PS, U_10M and V_10M and download all monthly files necesssary and unzip them - use 7-Zip. Delete the zip files before generating the wind field files."""
 
         permanent_text_label = tk.Label(
-            framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 14))
+            framedown, text=text, justify=tk.LEFT, wraplength=400, font=('Times', 12))
         permanent_text_label.pack()
 
         def check_submit():
