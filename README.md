@@ -1,18 +1,24 @@
-# Generate/alter input/boundary condition files for Delft3D4 using the EasyGSH dataset
+# Generate/alter input/boundary condition files for Delft3D4 using the EasyGSH and COSMO datasets
 # Identify representative period by wind (Soares et al., 2024) (pending...)
 # Use the standalone GUI EasyD3D
 
 
 Source of easygsh data  **https://mdi-de.baw.de/easygsh/Easy_Viewer_syn.html#home**
 
-Citations for using data : **Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004**
+Citations for using EasyGSH data : **Hagen, R., Plüß, A., Schrage, N., Dreier, N. (2020): EasyGSH-DB: Themengebiet - synoptische Hydrodynamik. Bundesanstalt für Wasserbau. https://doi.org/10.48437/02.2020.K2.7000.0004**
 Please read the source document to understand how these datasets are generated, some quick points.
 * The data provided are the results of a numerical simulation gridded over 1km and provided every 20 minutes. 
 * The numerical modeling approach used to generate the data utilizes annually updated bathymetry, tidal dynamics simulated by the Untrim2 modeling system, using tidal constituents at the open boundaries (corrected for external surge), waves computed using a combination of the model UnK (Schneggenburger et al., 2000) and SWAN for near-shore physical processes. **This code does not extract SWAN-generated data**
 
+Source for COSMO data **https://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/**
+
+Citations for using COMSO : **Bollmeyer, C., Keller, J.D., Ohlwein, C., Wahl, S., Crewell, S., Friederichs, P., Hense, A., Keune, J., Kneifel, S., Pscheidt, I., Redl, S., Steinke, S., 2015. Towards a high‐resolution regional reanalysis for the European CORDEX domain. Q.J.R. Meteorol. Soc. 141, 1–15. https://doi.org/10.1002/qj.2486**
+
+
 **This code creates files for the Delft3D4 module**
 1) To extract time-series water level 2D information for any designed boundaries within the EasyGSH model domain  (data found under the synoptic simulation, UnTRIM2, 1000m grid section.)
 2) To extract time series wave/Sea-state data 2D (significant height, peak period, direction, directional spread) for any designed boundaries within the EasyGSH model domain (data found under the synoptic simulation, UnTRIM2, 1000m grid section.)
+3) To extract spatial wind and pressure fields and create Delft3D compatible wind files. 
 
 **Important notes on the code function**
 * The code uses bilinear interpolation to extract water level and wave data for a concerned point.
@@ -23,12 +29,18 @@ Please read the source document to understand how these datasets are generated, 
 ### Packages used in this project
 
 * ast
-* csv 
+* cfgrib
+* csv
+* dask
 * datetime
+* ecCodes
+* h5py
 * math
 * numpy 
 * os
 * pandas
+* requests
+* scikit-learn
 * scipy
 * statistics
 * sys 
@@ -41,7 +53,6 @@ Please read the source document to understand how these datasets are generated, 
 # Working on
 
 * Adding variability in wave parameters for climate change scenarios. 
-* Adding integration with COSMO wind field files.
 
 
 ### Two choices are presented, you can run the <ins>main.py</ins> script in your Python environment to extract your files or use the standalone GUI <ins>EasyD3d.exe</ins>, alternatively, the gui_improved.py script is also provided in case you want to make changes to the source code and make a new GUI. One can use Pyinstaller or Auto-py-to-exe to convert the <ins>gui.py</ins> to the executable GUI EasyD3d. 
