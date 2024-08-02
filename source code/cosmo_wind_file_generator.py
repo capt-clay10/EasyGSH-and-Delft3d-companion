@@ -88,11 +88,11 @@ def create_wind_fields_cosmo(grid_ed_path, cosmo_db_utm_path, cosmo_files_path,
         if is_pressure:
             Fa = '%6.2f'
             Fb = ' %7.2f'
-            Fc = ' %7.2f\r'
+            Fc = ' %7.2f\n'
         else:
             Fa = '%6.2f'
             Fb = ' %7.2f'
-            Fc = ' %7.2f\r'
+            Fc = ' %7.2f\n'
 
         Fb1 = ''.join([Fb] * (b - 2))
         Zeil = [Fa + Fb1 + Fc]
