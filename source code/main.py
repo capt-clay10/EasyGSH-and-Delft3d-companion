@@ -640,7 +640,7 @@ if __name__ == '__main__':
 
     elif choice == 10:
         print("""
-                \nThe folder containing the COSMO files should be structured as such\n\nTWO folders in the main path\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
+                \nThe main path containing the COSMO files should be structured as such\n\nTWO folders in the main path\n\nFolder 1 should be named UV and should have all the U and V monthly cosmo files you wish to extract from.
                 \nFolder 2 should be named PS and should have all the PS monthly files.
                 \nThe COSMO files can be found at:
                 \nhttps://opendata.dwd.de/climate_environment/REA/COSMO_REA6/hourly/2D/ 
@@ -654,13 +654,13 @@ if __name__ == '__main__':
         path = cosmo_path_req
 
         ref_time = input(
-            "\nReference time from model simulation: eg  : 2011-01-01 00:00:00 :")
+            "\nReference time: \nShould be after the model reference time and before the simulation start time\neg 2011-01-01 00:00:00  :")
 
         output_file_name = input(
-            "Output file name:      eg: cosmo_2011 :")
+            "\n\nOutput file name \neg: cosmo_2011 :")
 
-        db_file = f'{cosmo_path_req}DB_6km.mat'
-        cosmo_db_file = f'{cosmo_path_req}COSMO_DB_UTM.mat'
+        db_file = f'{cosmo_path_req}\DB_6km.mat'
+        cosmo_db_file = f'{cosmo_path_req}\COSMO_DB_UTM.mat'
 
         # Delete .idx files before starting the process
         for root, dirs, files in os.walk(cosmo_path_req):
